@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Live Continent Map</title>
+    <link rel="stylesheet" href="src/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="map-panel" aria-label="Dynamic continent map">
+        <div class="map-stage">
+          <svg id="continent-map" role="img" aria-labelledby="map-title map-desc"></svg>
+          <h1 id="map-title">Live Continent Map</h1>
+          <p id="map-desc">
+            Seven continent shapes rendered from Natural Earth map data. Color and opacity update live from inputs.
+          </p>
+        </div>
+      </section>
+
+      <aside class="control-panel" aria-label="Continent style controls">
+        <div class="panel-heading">
+          <h2>Continent Controls</h2>
+          <button id="reset-controls" type="button">Reset</button>
+        </div>
+        <div id="continent-controls" class="controls"></div>
+
+        <label class="json-editor-label" for="style-json">
+          Live parameter JSON
+        </label>
+        <textarea id="style-json" spellcheck="false"></textarea>
+        <p id="json-status" class="status">JSON is synced with the controls.</p>
+      </aside>
+    </main>
+
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>
