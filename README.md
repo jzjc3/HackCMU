@@ -16,6 +16,10 @@ node .\scripts\run-framework.mjs dev
 
 The portable preview signs in as the documented local Sites test user. Production authentication is handled by ChatGPT Sites.
 
+Append `?dev=1` to any app URL to show the developer chrome. It preserves the
+design review controls, failure simulations, and deterministic 100-memory seed
+generator while keeping them out of the default product experience.
+
 ## Verification
 
 ```powershell
