@@ -8,6 +8,12 @@ The app runs as a private ChatGPT Site. ChatGPT supplies the signed-in identity,
 
 [View our demo slide](https://docs.google.com/presentation/d/18O0pGOO-O4wE1Hv3Aw-u2wgQpX03gnzk/edit?usp=drive_link&ouid=117718906907991650769&rtpof=true&sd=true)
 
+## Repository branches
+
+- `main`: the current Mind Travel app and documentation, formerly `release/mind-travel-board`.
+- `prototype`: the preserved original prototype, formerly `main`.
+- Existing `mind-travel-board-v*` tags retain the release checkpoints.
+
 ## Local development on Windows
 
 Use Node.js 22.13 or newer. Put `IFM_API_KEY` and `XAI_API_KEY` in an ignored `.dev.vars` file, then run:
