@@ -4,6 +4,10 @@ Mind Travel turns a person's real experiences into a personal world map. The fro
 
 The app runs as a private ChatGPT Site. ChatGPT supplies the signed-in identity, D1 stores one revision-controlled world per user, and R2 stores private image attachments. IFM extracts reviewable experience proposals. xAI provides speech-to-text, optional realtime voice, and user-requested illustrations. AI output never writes directly: the user reviews and explicitly saves every proposal.
 
+## Demo slide
+
+[View our demo slide](https://docs.google.com/presentation/d/18O0pGOO-O4wE1Hv3Aw-u2wgQpX03gnzk/edit?usp=drive_link&ouid=117718906907991650769&rtpof=true&sd=true)
+
 ## Local development on Windows
 
 Use Node.js 22.13 or newer. Put `IFM_API_KEY` and `XAI_API_KEY` in an ignored `.dev.vars` file, then run:
