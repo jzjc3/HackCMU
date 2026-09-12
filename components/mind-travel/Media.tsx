@@ -3,11 +3,14 @@ import React from 'react';
 import {clientApi} from '@/lib/client-api';
 import {Button} from './Primitives';
 
-export function AttachmentEditor({value,onChange,memoryId,description}:{value:string[];onChange:(ids:string[])=>void;memoryId?:string;description:string}){
+export function AttachmentEditor({value,onChange,memoryId,description,onBusyChange}:{value:string[];onChange:(ids:string[])=>void;memoryId?:string;description:string;onBusyChange?:(busy:boolean)=>void}){
  const [busy,setBusy]=React.useState(false),[error,setError]=React.useState<string|null>(null),[prompt,setPrompt]=React.useState(''),[generating,setGenerating]=React.useState(false);
  const [kinds,setKinds]=React.useState<Record<string,string>>({});const file=React.useRef<HTMLInputElement>(null);
+ const alive=React.useRef(true),running=React.useRef(false),latest=React.useRef({value,onChange,onBusyChange});
+ React.useLayoutEffect(()=>{latest.current={value,onChange,onBusyChange}},[value,onChange,onBusyChange]);
+ React.useEffect(()=>{alive.current=true;return()=>{alive.current=false;latest.current.onBusyChange?.(false)}},[]);
  React.useEffect(()=>{let cancelled=false;for(const id of value){if(kinds[id])continue;void clientApi.getAttachment(id).then(({attachment})=>{if(!cancelled)setKinds(k=>({...k,[id]:attachment.kind}))}).catch(()=>{});}return()=>{cancelled=true}},[value,kinds]);
- const run=async(fn:()=>ReturnType<typeof clientApi.uploadAttachment>)=>{setBusy(true);setError(null);try{const {attachment}=await fn();onChange([...value,attachment.id]);setKinds(k=>({...k,[attachment.id]:attachment.kind}));setGenerating(false)}catch(e){setError(e instanceof Error?e.message:'Image could not be added.')}finally{setBusy(false)}};
+ const run=async(fn:()=>ReturnType<typeof clientApi.uploadAttachment>)=>{if(running.current||latest.current.value.length>=10)return;running.current=true;setBusy(true);latest.current.onBusyChange?.(true);setError(null);try{const {attachment}=await fn();if(!alive.current){void clientApi.deleteAttachment(attachment.id).catch(()=>{});return}latest.current.onChange([...latest.current.value,attachment.id]);setKinds(k=>({...k,[attachment.id]:attachment.kind}));setGenerating(false)}catch(e){if(alive.current)setError(e instanceof Error?e.message:'Image could not be added.')}finally{running.current=false;if(alive.current){setBusy(false);latest.current.onBusyChange?.(false)}}};
  return <details style={{borderTop:'1px solid var(--border-hairline)',paddingTop:16}} open={value.length>0||undefined}><summary style={{cursor:'pointer',font:'var(--text-body)'}}>Images (optional)</summary><div style={{display:'flex',flexDirection:'column',gap:12,paddingTop:12}}>
  <input hidden ref={file} type="file" accept="image/jpeg,image/png,image/webp" onChange={e=>{const f=e.target.files?.[0];if(f)void run(()=>clientApi.uploadAttachment(f));e.currentTarget.value=''}}/>
  <div style={{display:'flex',gap:16,flexWrap:'wrap'}}><Button size="sm" variant="outline" disabled={busy||value.length>=10} onClick={()=>file.current?.click()}>Upload photo</Button><Button size="sm" variant="text" disabled={busy||value.length>=10} onClick={()=>{setPrompt(description);setGenerating(!generating)}}>Generate illustration</Button></div>

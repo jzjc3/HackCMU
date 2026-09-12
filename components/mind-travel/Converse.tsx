@@ -1,14 +1,16 @@
 'use client';
+import type {ConversationController} from "@/lib/conversation";
+import {clientApi} from "@/lib/client-api";
+
 
 import React from 'react';
 import type {MemoryDraft, Proposal, World} from '@/lib/types';
 import {today} from './constants';
-import {classify} from './classification';
 import {draftsFromProposals} from './experience-flow';
 import {Button} from './Primitives';
 import {field, Panel, pLabel} from './Panels';
-import {DictationButton} from './Media';
 import {RealtimeVoice} from './RealtimeVoice';
+import {DictationButton} from './Media';
 
 function Bubble({who, children}:{who:'me'|'ai';children:React.ReactNode}) {
   const me=who==='me';
@@ -28,20 +30,41 @@ const mix=(a:string,b:string,t:number)=>{const p=(h:string)=>[1,3,5].map(i=>pars
 
 export function ModeSwitch({mode,onChange}:{mode:'form'|'talk';onChange:(mode:'form'|'talk')=>void}) {return <div role="tablist" aria-label="Capture mode" style={{display:'inline-flex',alignSelf:'flex-start',border:'1px solid var(--border-hairline)',borderRadius:30,padding:2,background:'#fff'}}>{[['form','One experience'],['talk','Describe your day']].map(([k,l])=>{const on=mode===k;return <button key={k} role="tab" aria-selected={on} onClick={()=>onChange(k as 'form'|'talk')} style={{border:0,borderRadius:30,padding:'5px 12px',cursor:'pointer',font:'var(--text-micro)',background:on?'#17171c':'transparent',color:on?'#fff':'var(--text-primary)'}}>{l}</button>})}</div>}
 
-export function Converse({world,onCancel,onSaveAll,useModel=true,modeSwitch,draftKey}:{world:World;onCancel:()=>void;onSaveAll:(items:MemoryDraft[])=>Promise<void>;useModel?:boolean;modeSwitch?:React.ReactNode;draftKey:string}) {
-  const [msgs,setMsgs]=React.useState<{id?:string;who:'me'|'ai';text:string}[]>([{who:'ai',text:'Tell me about your day, or one thing that happened. I’ll sort it into your dimensions and you confirm before anything is saved.'}]);
-  const [draft,setDraft]=React.useState(''); const [items,setItems]=React.useState<Proposal[]|null>(null); const [busy,setBusy]=React.useState(false); const [source,setSource]=React.useState<'model'|'local'|null>(null); const [error,setError]=React.useState<string|null>(null);
-  const listRef=React.useRef<HTMLDivElement>(null);
-  const [hydrated,setHydrated]=React.useState(false);
-  React.useEffect(()=>{try{const saved=JSON.parse(localStorage.getItem(draftKey)||'null');if(saved){if(typeof saved.draft==='string')setDraft(saved.draft);if(Array.isArray(saved.msgs))setMsgs(saved.msgs);if(Array.isArray(saved.items))setItems(saved.items)}}catch{}setHydrated(true)},[draftKey]);
-  React.useEffect(()=>{if(hydrated)try{localStorage.setItem(draftKey,JSON.stringify({draft,msgs,items}))}catch{}},[draft,msgs,items,draftKey,hydrated]);
-  React.useEffect(()=>{const el=listRef.current;if(el)el.scrollTop=el.scrollHeight},[msgs,items,busy,error]);
-  const accept=(proposals:Proposal[])=>setItems(proposals.map((it,i)=>({...it,key:it.key??`${Date.now()}-${i}`,removed:false})));
-  const showVoiceMessage=(who:'me'|'ai',text:string,id?:string)=>setMsgs(messages=>{if(!id)return [...messages,{who,text}];const at=messages.findIndex(message=>message.id===id);if(at<0)return [...messages,{id,who,text}];const next=[...messages];next[at]={id,who,text};return next});
-  const send=async()=>{const text=draft.trim();if(!text||busy)return;setDraft('');setMsgs(m=>[...m,{who:'me',text}]);setBusy(true);setItems(null);setError(null);try {const res=await classify(text,world.dims,{useModel,context:{recent:world.memories.slice(-8).map(m=>({text:m.text,dims:m.dims}))}});setSource(res.source);const n=res.items.length;const names=[...new Set(res.items.flatMap(i=>i.dims))].map(id=>world.dims.find(d=>d.id===id)?.name).filter(Boolean);setMsgs(m=>[...m,{who:'ai',text:n===0?'I couldn’t find a distinct experience in that. Could you say a little more?':`I heard ${n} ${n===1?'experience':'separate experiences'}${names.length?`, touching ${names.join(', ')}`:''}. Check the list, then save what you want to keep.${res.question?'\n\n'+res.question:''}`}]);accept(res.items)} catch(e) {setDraft(text);setError(e instanceof Error?e.message:'The assistant could not sort that yet. Your text remains in the conversation.')} finally {setBusy(false)}};
-  const keep=(items||[]).filter(i=>!i.removed&&i.text.trim()&&i.dims.length);
-  const saveAll=async()=>{if(!keep.length||busy)return;setBusy(true);setError(null);try {await onSaveAll(draftsFromProposals(keep,today()));setItems(null);try{localStorage.removeItem(draftKey)}catch{}setMsgs(m=>[...m,{who:'ai',text:`Saved ${keep.length} ${keep.length===1?'experience':'experiences'}. Your map has been updated. Anything else from today?`}])} catch(e) {setError(e instanceof Error?e.message:'Could not save. Review is still here; retry when ready.')} finally {setBusy(false)}};
-  return <Panel title="Describe your day" eyebrow={modeSwitch} onBack={onCancel} backLabel="Close" footer={items&&keep.length>0?<><Button onClick={()=>void saveAll()} disabled={busy}>{busy?'Saving…':`Save ${keep.length} ${keep.length===1?'experience':'experiences'}`}</Button><Button variant="text" onClick={()=>setItems(null)} disabled={busy}>Discard</Button></>:<><textarea value={draft} onChange={e=>setDraft(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey))void send()}} placeholder="e.g. Ran before work, then presented the quarterly plan. Called mom in the evening." rows={2} aria-label="Describe your experiences" style={{...field,flex:1,resize:'none',minWidth:0}}/><DictationButton disabled={busy} onText={text=>setDraft(d=>d?`${d} ${text}`:text)} onError={setError}/><Button size="sm" style={{whiteSpace:'nowrap'}} onClick={()=>void send()} disabled={!draft.trim()||busy}>{busy?'Sorting…':'Send'}</Button></>}>
-    <div ref={listRef} style={{display:'flex',flexDirection:'column',gap:12,flex:1,minHeight:0}}>{msgs.map((m,i)=><Bubble key={m.id||i} who={m.who}>{m.text}</Bubble>)}{busy&&<Bubble who="ai"><span style={{fontFamily:'var(--font-mono)',color:'var(--text-muted)'}}>Sorting into your dimensions…</span></Bubble>}{items&&<div style={{display:'flex',flexDirection:'column',gap:10}}>{items.map((it,i)=><ProposalCard key={String(it.key)} it={it} world={world} onChange={v=>setItems(a=>a?.map((x,j)=>j===i?v:x)??null)} onRemove={()=>setItems(a=>a?.map((x,j)=>j===i?{...x,removed:!x.removed}:x)??null)}/>) }<span style={pLabel}>Nothing is saved until you press Save. {source==='local'?'Sorted on this device (no model available).':'Sorted by the assistant; your text was sent for classification only.'}</span></div>}{!items&&!busy&&msgs.length===1&&<><span style={pLabel}>The assistant sorts, you confirm. Nothing is saved without your review.</span></>}<RealtimeVoice world={world} onMessage={showVoiceMessage} onProposals={accept}/>{error&&<span role="alert" style={{font:'var(--text-caption)',color:'var(--state-error)'}}>{error}</span>}</div>
+export function Converse({world,onCancel,onSaveAll,useModel=true,modeSwitch,controller}:{world:World;onCancel:()=>void;onSaveAll:(items:MemoryDraft[])=>Promise<void>;useModel?:boolean;modeSwitch?:React.ReactNode;controller:ConversationController}) {
+  const state=React.useSyncExternalStore(controller.subscribe,controller.getSnapshot,controller.getSnapshot);
+  React.useEffect(()=>()=>controller.switchMode('text'),[controller]);
+  const send=async()=>{
+    const current=controller.getSnapshot(),text=current.draft.trim();if(!text||current.pending||current.mode!=='text')return;
+    controller.setDraft('');controller.message('user',text);
+    const request=controller.begin();if(!request)return;
+    try{
+      if(!useModel)throw new Error('Live model is disabled in developer controls. Enable it to use the shared conversation.');
+      const result=await clientApi.converse(request.context,'chat',request.signal);
+      if(!controller.current(request))return;
+      const applied=controller.apply(request,result);
+      controller.message('assistant',applied.conflicts?'Your edits were kept. Please ask again if you want me to revise this card.':result.reply);
+      controller.finish(request);
+    }catch(error){if(controller.current(request)){if(!controller.getSnapshot().draft.trim())controller.setDraft(text);controller.finish(request,error instanceof Error?error.message:'The assistant could not respond. Please retry.')}}
+  };
+  const cards=state.cards.filter(c=>c.status==='draft');
+  const keep=cards.filter(c=>!c.removed&&c.text.trim()&&c.dims.length);
+  const save=()=>controller.save(keep.map(c=>c.id),async selected=>{
+    const drafts=selected.map(card=>({...draftsFromProposals([card],card.date??today())[0],id:card.id}));
+    await onSaveAll(drafts);
+  });
+  return <Panel title="Describe your day" eyebrow={modeSwitch} onBack={onCancel} backLabel="Close" footer={<div style={{display:'flex',flexDirection:'column',gap:10,width:'100%'}}>
+    {keep.length>0&&<div style={{display:'flex',gap:8}}><Button onClick={()=>void save()} disabled={state.saving.length>0}>{state.saving.length?'Saving…':`Save ${keep.length} ${keep.length===1?'experience':'experiences'}`}</Button><Button variant="text" onClick={()=>controller.discard(cards.map(c=>c.id))} disabled={state.saving.length>0}>Discard</Button></div>}
+    {state.mode==='text'&&<div style={{display:'flex',gap:8,alignItems:'center'}}><textarea value={state.draft} onChange={e=>controller.setDraft(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey))void send()}} placeholder="Describe an experience, or correct a draft…" maxLength={8000} rows={2} aria-label="Describe your experiences" style={{...field,flex:1,resize:'none',minWidth:0}}/><DictationButton onText={text=>controller.setDraft([controller.getSnapshot().draft,text].filter(Boolean).join(" "))} onError={error=>controller.setError(error)} disabled={state.pending}/><Button size="sm" onClick={()=>void send()} disabled={!state.draft.trim()||state.pending}>{state.pending?'Thinking…':'Send'}</Button></div>}
+  </div>}>
+    <div style={{display:'flex',flexDirection:'column',gap:12,flex:1,minHeight:0}}>
+      {!state.history.length&&<Bubble who="ai">Tell me about your day, or one thing that happened. I’ll prepare a draft for you to review before saving.</Bubble>}
+      <RealtimeVoice controller={controller} world={world} disabled={!useModel}/>
+      {state.history.filter(e=>e.role!=='event').map(entry=><Bubble key={entry.id} who={entry.role==='user'?'me':'ai'}>{entry.text}</Bubble>)}
+      {state.pending&&<span role="status" style={pLabel}>{state.mode==='voice'?'Preparing your drafts…':'Thinking…'}</span>}
+      {cards.map(card=><fieldset key={card.id} disabled={state.saving.includes(card.id)} style={{margin:0,padding:0,border:0,minWidth:0}}><ProposalCard it={card} world={world} onChange={proposal=>controller.edit(card.id,proposal)} onRemove={()=>controller.edit(card.id,{...card,removed:!card.removed})}/>{card.date&&<span style={pLabel}>Date: {card.date}</span>}</fieldset>)}
+      {cards.length>0&&<span style={pLabel}>Drafts only. Nothing is saved until you press Save.</span>}
+      {state.history.filter(e=>e.role==='event'&&e.text.startsWith('Save ')).slice(-1).map(e=><span key={e.id} role="status" style={pLabel}>{e.text.startsWith('Save succeeded')?'Saved. Your map has been updated.':'Save failed. Your drafts are ready to retry.'}</span>)}
+      {state.error&&<span role="alert" style={{font:'var(--text-caption)',color:'var(--state-error)'}}>{state.error}</span>}
+    </div>
   </Panel>;
 }

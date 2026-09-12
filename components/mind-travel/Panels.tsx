@@ -41,12 +41,14 @@ export function Composer({world,initial,onCancel,onSave,saveState,onRetry,offlin
   const [m,setM]=React.useState<MemoryDraft>(()=>{try{const saved=localStorage.getItem(draftKey);if(saved)return JSON.parse(saved)}catch{}return initial||{text:'',title:'',date:S2.today(),dims:[],emotion:null,importance:null,clarity:null}});
   const [more,setMore]=React.useState(!!(initial&&(initial.title||initial.emotion||initial.importance||initial.clarity)));
   const [dirty,setDirty]=React.useState(false);
+  const [imageBusy,setImageBusy]=React.useState(false);const imagePending=React.useRef(false);
+  const imageStatus=(pending:boolean)=>{imagePending.current=pending;setImageBusy(pending)};
   React.useEffect(()=>{try{localStorage.setItem(draftKey,JSON.stringify(m))}catch{}},[m,draftKey]);
   const set=(p:Partial<MemoryDraft>)=>{setM(x=>({...x,...p}));setDirty(true)};
   const active=world.dims.filter(d=>d.active);
   const valid=m.text.trim().length>0&&m.dims.length>0;
-  const busy=saveState==='saving';
-  const submit=async(action:(draft:MemoryDraft)=>Promise<void>)=>{try{await action(m);localStorage.removeItem(draftKey)}catch{/* Parent keeps the failed state and this draft stays in storage. */}};
+  const busy=saveState==='saving'||imageBusy;
+  const submit=async(action:(draft:MemoryDraft)=>Promise<void>)=>{if(imagePending.current||saveState==='saving')return;try{await action(m);localStorage.removeItem(draftKey)}catch{/* Parent keeps the failed state and this draft stays in storage. */}};
   const cancel=()=>{if(saveState==='failed'){onCancel();return}if(dirty&&!window.confirm('Discard unsaved changes?'))return;localStorage.removeItem(draftKey);onCancel()};
   // AI suggestion for the single-entry form: proposes dimensions (+emotion) once the text is long enough
   const [sug,setSug]=React.useState<{dims:string[];emotion:MemoryDraft['emotion'];reason:string;source:string}|null>(null);const [sugBusy,setSugBusy]=React.useState(false);const sugFor=React.useRef('');
@@ -56,8 +58,8 @@ export function Composer({world,initial,onCancel,onSave,saveState,onRetry,offlin
   const pending=sug&&(sug.dims.some(d=>!m.dims.includes(d))||(sug.emotion&&!m.emotion));
   return <Panel title={isEdit?'Edit memory':'Add an experience'} eyebrow={modeSwitch} onBack={cancel} backLabel={isEdit?'Back':'Cancel'}
     footer={<>
-      {saveState==='failed'?<><Button onClick={()=>void submit(onRetry)}>Retry</Button><Button variant="text" onClick={cancel}>Keep draft and close</Button></>:
-      <><Button onClick={()=>void submit(onSave)} disabled={!valid||busy}>{busy?'Saving…':saveState==='saved'?'Saved':'Save'}</Button><Button variant="text" onClick={cancel} disabled={busy}>Cancel</Button></>}
+      {saveState==='failed'?<><Button onClick={()=>void submit(onRetry)} disabled={busy}>Retry</Button><Button variant="text" onClick={cancel}>Keep draft and close</Button></>:
+      <><Button onClick={()=>void submit(onSave)} disabled={!valid||busy}>{imageBusy?'Preparing image…':busy?'Saving…':saveState==='saved'?'Saved':'Save'}</Button><Button variant="text" onClick={cancel} disabled={busy}>Cancel</Button></>}
       {saveState==='failed'&&<span role="alert" style={{font:'var(--text-caption)',color:'var(--state-error)',width:'100%'}}>Couldn't save{offline?' while offline':''}. Your draft is kept here.</span>}
       {offline&&saveState!=='failed'&&<span style={{...pLabel,width:'100%'}}>You're offline. Your draft stays here until you reconnect.</span>}
     </>}>
@@ -74,7 +76,7 @@ export function Composer({world,initial,onCancel,onSave,saveState,onRetry,offlin
       <button type="button" onClick={()=>setMore(!more)} aria-expanded={more} style={{background:'none',border:0,padding:0,cursor:'pointer',font:'var(--text-body)',textDecoration:'underline',textUnderlineOffset:3,color:'var(--text-primary)'}}>{more?'Hide details':'Add details (optional)'}</button>
       {!more&&<p style={{...pLabel,margin:'8px 0 0'}}>Title, feeling, importance and clarity. Skipping these changes nothing about how the memory is treated.</p>}
     </div>
-    <AttachmentEditor value={m.attachmentIds||[]} onChange={ids=>set({attachmentIds:ids,photo:undefined})} memoryId={m.id} description={m.text}/>
+    <fieldset disabled={saveState==='saving'} style={{border:0,padding:0,margin:0,minWidth:0}}><AttachmentEditor value={m.attachmentIds||[]} onChange={ids=>set({attachmentIds:ids,photo:undefined})} memoryId={m.id} description={m.text} onBusyChange={imageStatus}/></fieldset>
     {more&&<>
       <label style={{display:'flex',flexDirection:'column',gap:6}}><span style={pLabel}>Title</span><input value={m.title} onChange={e=>set({title:e.target.value})} style={field}/></label>
       <div style={{display:'flex',flexDirection:'column',gap:8}}><div style={{display:'flex',justifyContent:'space-between'}}><span style={pLabel}>How did it feel?</span>{m.emotion&&<button type="button" onClick={()=>set({emotion:null})} style={{...pLabel,background:'none',border:0,cursor:'pointer',textDecoration:'underline'}}>Clear</button>}</div><div style={{display:'flex',gap:6,flexWrap:'wrap'}}>{S2.EMOTIONS.map(e=><Chip key={e} tone="outline" size="sm" active={m.emotion===e} onClick={()=>set({emotion:m.emotion===e?null:e})}>{e}</Chip>)}</div></div>

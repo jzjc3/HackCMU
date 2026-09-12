@@ -26,6 +26,9 @@ generator while keeping them out of the default product experience.
 node .\node_modules\typescript\bin\tsc --noEmit
 node .\scripts\test-validation.mjs
 node .\scripts\test-storage.mjs
+npm run test:conversation
+npm run test:voice
+npm run test:images
 node .\scripts\evaluate-ifm.mjs --release
 node .\scripts\run-framework.mjs build
 ```
@@ -33,5 +36,7 @@ node .\scripts\run-framework.mjs build
 The IFM evaluation writes sanitized results to `eval/release-report.md` and `eval/release-report.json`; credentials and request headers are never recorded. `scripts/smoke-provider-access.mjs` checks IFM and xAI access and validates that xAI can issue an ephemeral realtime credential without printing it.
 
 See [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) for architecture, product contracts and release criteria.
+
+See [UNIFIED_CONVERSATION.md](./UNIFIED_CONVERSATION.md) for the shared text/live conversation, independent Save behavior, image-upload verification, and preserved V7 rollback checkpoint. The real-provider conversation evaluation is `node .\scripts\evaluate-conversation.mjs` (10 synthetic cases; requires IFM_API_KEY).
 
 See [VOICE_REGRESSION.md](./VOICE_REGRESSION.md) for the v1/v6 voice comparison, repair, diagnostics, tests (`npm run test:voice`), and saved Sites rollback versions.

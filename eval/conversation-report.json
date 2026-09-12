@@ -1,0 +1,168 @@
+{
+  "date": "2026-09-12T18:23:19.311Z",
+  "results": [
+    {
+      "name": "ordinary-lunch",
+      "passed": true,
+      "result": {
+        "reply": "Got it — I've drafted your lunch at CMU for today. Ready for review.",
+        "changes": [
+          {
+            "cardId": null,
+            "proposal": {
+              "text": "I ate lunch at CMU today.",
+              "dims": [
+                "health"
+              ],
+              "reason": "Eating a meal is nutrition, which falls under Physical Health.",
+              "emotion": null,
+              "confidence": 0.9,
+              "date": "2026-09-12"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Chinese-ordinary-lunch",
+      "passed": true,
+      "result": {
+        "reply": "已把今天中午在CMU食堂吃午饭的经历整理好，等待你审阅。",
+        "changes": [
+          {
+            "cardId": null,
+            "proposal": {
+              "text": "今天中午在CMU食堂吃了午饭。",
+              "dims": [
+                "health"
+              ],
+              "reason": "进餐属于营养与身体健康范畴。",
+              "emotion": null,
+              "confidence": 0.9,
+              "date": "2026-09-12"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "typed-to-voice-date-correction",
+      "passed": true,
+      "result": {
+        "reply": "Updated the lunch draft to yesterday's date.",
+        "changes": [
+          {
+            "cardId": "draft-lunch",
+            "proposal": {
+              "text": "I ate lunch at CMU yesterday.",
+              "dims": [
+                "health"
+              ],
+              "reason": "Nutrition.",
+              "emotion": null,
+              "confidence": 0.95,
+              "date": "2026-09-11"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "voice-to-typed-correction",
+      "passed": true,
+      "result": {
+        "reply": "Ready for review.",
+        "changes": [
+          {
+            "cardId": "draft-lunch",
+            "proposal": {
+              "text": "I ate lunch at home today.",
+              "dims": [
+                "health"
+              ],
+              "reason": "Nutrition.",
+              "emotion": null,
+              "confidence": 0.95,
+              "date": "2026-09-12"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "save-status-confirmed",
+      "passed": true,
+      "result": {
+        "reply": "Yes, that lunch experience was saved to your map.",
+        "changes": []
+      }
+    },
+    {
+      "name": "draft-is-not-saved",
+      "passed": true,
+      "result": {
+        "reply": "It's still a draft ready for review, not saved yet. You can save it from the map card when you're ready.",
+        "changes": []
+      }
+    },
+    {
+      "name": "no-duplicate-on-thanks",
+      "passed": true,
+      "result": {
+        "reply": "You're welcome! Let me know if you'd like to add anything else.",
+        "changes": []
+      }
+    },
+    {
+      "name": "just-chat-prompt",
+      "passed": true,
+      "result": {
+        "reply": "Got it, no drafts. How was your walk?",
+        "changes": []
+      }
+    },
+    {
+      "name": "tools-question",
+      "passed": true,
+      "result": {
+        "reply": "I'm the experience specialist for Mind Travel — I turn your diary descriptions into reviewable experience proposals across categories like career, health, relationships, entertainment, travel, creativity, and personal growth. I can't save cards or control the microphone myself, but I can draft and revise experiences for you.",
+        "changes": []
+      }
+    },
+    {
+      "name": "two-distinct-experiences",
+      "passed": true,
+      "result": {
+        "reply": "Ready for review.",
+        "changes": [
+          {
+            "cardId": null,
+            "proposal": {
+              "text": "Ran five miles before work.",
+              "dims": [
+                "health"
+              ],
+              "reason": "Running five miles is physical activity.",
+              "emotion": null,
+              "confidence": 0.95,
+              "date": "2026-09-12"
+            }
+          },
+          {
+            "cardId": null,
+            "proposal": {
+              "text": "Painted a watercolor landscape in the evening.",
+              "dims": [
+                "creativity"
+              ],
+              "reason": "Watercolor painting is creative expression.",
+              "emotion": null,
+              "confidence": 0.95,
+              "date": "2026-09-12"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

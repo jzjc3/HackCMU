@@ -91,7 +91,7 @@ export function parseWorld(value: unknown, ownedAttachmentIds: Set<string>): Omi
 }
 
 export function sanitizeName(value: string): string {
-  const clean = value.replace(/[\u0000-\u001f\u007f]/g, "").trim().slice(0, 180);
+  const clean = (value.split(/[\\/]/).at(-1) ?? '').replace(/[\u0000-\u001f\u007f]/g, "").trim().slice(0, 180);
   return clean || "image";
 }
 

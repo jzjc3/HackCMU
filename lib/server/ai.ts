@@ -50,7 +50,7 @@ export class ProviderError extends Error {
   }
 }
 
-function ifmClient() {
+export function ifmClient() {
   if (!env.IFM_API_KEY) throw new ProviderError("provider_unavailable", "Experience sorting is not configured.", 503);
   return new OpenAI({ apiKey: env.IFM_API_KEY, baseURL: "https://api.ifm.ai/v1" });
 }
@@ -133,15 +133,16 @@ export async function extractExperiences(args: {
   return localExtractionFallback(args.text, active);
 }
 
-function parseStructuredContent(content: unknown): unknown {
+export function parseStructuredContent(content: unknown): unknown {
   if (content && typeof content === "object") return content;
   if (typeof content !== "string") throw new SyntaxError("Structured response was empty");
-  try { return JSON.parse(content); } catch {
-    const fenced = content.match(/```(?:json)?\s*([\s\S]*?)```/i)?.[1];
+  const text=content.split('</ifm|think>').at(-1)??content;
+  try { return JSON.parse(text); } catch {
+    const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i)?.[1];
     if (fenced) return JSON.parse(fenced);
-    const start = content.indexOf("{");
-    const end = content.lastIndexOf("}");
-    if (start >= 0 && end > start) return JSON.parse(content.slice(start, end + 1));
+    const start = text.indexOf("{");
+    const end = text.lastIndexOf("}");
+    if (start >= 0 && end > start) return JSON.parse(text.slice(start, end + 1));
     throw new SyntaxError("Structured response was not JSON");
   }
 }

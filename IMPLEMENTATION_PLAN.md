@@ -90,3 +90,6 @@ Delivery: production build and meaningful checks pass; API secrets absent from b
 - Original prototype defects: hooks after conditional setup return; synchronous batch success; unreliable draft-close retention; keyword fallback masking model absence; random Picsum photos.
 
 No deployment or real model evaluation had occurred when this plan was first saved. Progress and evidence are maintained in `docs/BUILD_STATUS.md`.
+# September 12 update: unified conversation
+
+The accepted text/live refactor and image-upload verification are implemented. See [UNIFIED_CONVERSATION.md](./UNIFIED_CONVERSATION.md) for the final ownership model, cancellation versus Save semantics, validation evidence, and preserved V7 rollback instructions. This supersedes earlier separate-conversation assumptions; category definitions, map rendering, Sites hosting, and explicit review-before-save remain unchanged.
