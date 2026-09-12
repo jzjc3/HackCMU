@@ -12,11 +12,12 @@ const S2=STORE;
 export const pLabel:React.CSSProperties={font:'var(--text-caption)',color:'var(--text-muted)'};
 const panelH1:React.CSSProperties={margin:0,font:'var(--text-feature-heading)'};
 export const field:React.CSSProperties={font:'var(--text-body)',padding:'12px 16px',border:'1px solid var(--border-hairline)',borderRadius:4,background:'#fff',color:'var(--text-primary)',outline:'none',width:'100%',boxSizing:'border-box'};
-export function Panel({title,eyebrow,onBack,backLabel='Back',children,footer}:{title:string;eyebrow?:React.ReactNode;onBack?:()=>void;backLabel?:string;children:React.ReactNode;footer?:React.ReactNode}){
-  return <aside style={{width:'var(--panel-w, 400px)',flex:'0 0 var(--panel-w, 400px)',borderLeft:'1px solid var(--border-hairline)',background:'#fff',display:'flex',flexDirection:'column',minHeight:0}} aria-label={title}>
+export function Panel({title,eyebrow,onBack,backLabel='Back',children,footer,toolbar}:{title:string;eyebrow?:React.ReactNode;onBack?:()=>void;backLabel?:string;children:React.ReactNode;footer?:React.ReactNode;toolbar?:React.ReactNode}){
+  return <aside className="mt-detail-panel" style={{width:'var(--panel-w, 400px)',flex:'0 0 var(--panel-w, 400px)',borderLeft:'1px solid var(--border-hairline)',background:'#fff',display:'flex',flexDirection:'column',minHeight:0}} aria-label={title}>
     <div style={{padding:'20px 24px 0',display:'flex',flexDirection:'column',gap:8}}>{onBack&&<button onClick={onBack} style={{alignSelf:'flex-start',background:'none',border:0,padding:0,cursor:'pointer',font:'var(--text-caption)',textDecoration:'underline',textUnderlineOffset:3,color:'var(--text-primary)'}}>← {backLabel}</button>}{eyebrow}<h2 style={panelH1}>{title}</h2></div>
-    <div style={{padding:'16px 24px 24px',overflow:'auto',flex:1,display:'flex',flexDirection:'column',gap:20}}>{children}</div>
-    {footer&&<div style={{padding:'16px 24px',borderTop:'1px solid var(--border-hairline)',display:'flex',gap:20,alignItems:'center',flexWrap:'wrap'}}>{footer}</div>}
+    {toolbar&&<div style={{padding:'12px 24px 0',flexShrink:0}}>{toolbar}</div>}
+    <div className="mt-panel-scroll" style={{padding:'16px 24px 24px',overflow:'auto',flex:1,minHeight:0,display:'flex',flexDirection:'column',gap:20}}>{children}</div>
+    {footer&&<div style={{padding:'16px 24px',borderTop:'1px solid var(--border-hairline)',display:'flex',gap:20,alignItems:'center',flexWrap:'wrap',flexShrink:0}}>{footer}</div>}
   </aside>;
 }
 function Scale({label:l,value,onChange,low,high}:{label:string;value:Rating;onChange:(r:Rating)=>void;low:string;high:string}){

@@ -43,7 +43,7 @@ Live evaluation exposed two provider-specific requirements: constrained JSON out
 
 IFM uses the existing request signal and epoch, checks cancellation before and after awaited work, and cannot apply stale results. Grok uses the same controller lifecycle, deduplicates call IDs, reuses equivalent successful lookups within the same input turn, validates shared arguments, and settles tool counts in `finally`. New speech cancels pending model work; an interrupted tool settles as cancelled without exposing its old result or triggering continuation. A replaced session receives no old output. Tool continuations wait for response completion and audio playback. Grok executes at most four tools per input turn, including categorization, across provider continuation IDs.
 
-Save remains an independent application operation. Cancelling lookup or changing text/live mode does not cancel an in-flight Save. PM-owned conversation archive/switch work is separate; its helpers must invalidate the model epoch before replacing active history.
+Save remains an independent application operation. Cancelling lookup or changing text/live mode does not cancel an in-flight Save. The integrated V9 conversation switch invalidates the model epoch before replacing active history and blocks conversation switching during Save.
 
 ## Verification
 
@@ -65,4 +65,14 @@ For opt-in paid model checks in PowerShell, set `$env:LOOKUP_EVAL_ENV_FILE` to a
 - Lookup facts are snapshots. Explicit new recall requests retrieve again; a discussion of earlier results may refer to a record edited or deleted since retrieval.
 - Prompt behavior is sampled, not a guarantee of all model wording. The server enforces read-only execution and suppresses lookup-turn draft changes; the application still requires explicit Save for new drafts.
 - Real provider checks use synthetic storage callbacks. SQLite/authentication and browser lifecycle checks are separate automated tests. Grok smoke uses text injection, not a physical microphone; production account end-to-end testing remains a release check for the PM.
-- PM is independently editing `RealtimeVoice.tsx` presentation and adding local conversation archives in `lib/conversation.ts`/`Converse.tsx`. This lane's voice diff changes tool logic only; its controller diff adds `recordLookup`, result metadata, and a guarded call in `apply`. Preserve those PM changes during integration and rerun lookup/voice/conversation tests after merging.
+- This lane's voice diff changes tool logic only; its controller diff adds `recordLookup`, result metadata, and a guarded call in `apply`. Preserve the PM's V9 presentation and archive helpers during release integration.
+
+## V9 integration validation
+
+The PM requested independent integration of committed V9 **`4f457860608edd46fbc97605920710433f951cba`** with lookup commit **`354c858daf3de179c234b6479328a7bf2aaa58bb`**. V9 was merged into this isolated lookup branch; the main checkout was not edited and no publication was performed.
+
+The sole merge conflict was adjacent type declarations in `lib/conversation.ts`. Resolution preserves V9's `ConversationSession`, `conversationId`, `archives`, validators, persistence and `openConversation` implementation, alongside the optional lookup metadata. Voice presentation and both sets of existing voice tests merged automatically. `Converse` still keys voice and dictation by conversation ID and retains the PM's toolbar/history selector.
+
+Added integration regressions confirm that completed lookup evidence survives archive/reopen and browser-state hydration, while a pending IFM lookup cannot enter the new conversation or mutate the archive. The Grok regression confirms `openConversation` closes the old socket, drops its delayed lookup output, and a fresh session performs a fresh network lookup for the same keyword rather than reusing the old session cache.
+
+Combined lookup, conversation, voice, image/dictation, extraction, experience-flow, validation and storage tests pass, together with TypeScript, targeted ESLint and the production build. Prior live IFM/Grok reports remain the provider evidence; the merge does not change provider prompts, SQL or server dispatch, so paid provider evaluations were not repeated. Physical microphone and production browser/account testing remain with the release owner.

@@ -21,7 +21,7 @@ export function Settings({world,setWorld,onClose,onReassign,onDeleteAll}:{world:
   const sec:React.CSSProperties={display:'flex',flexDirection:'column',gap:12};
   const h:React.CSSProperties={margin:0,font:'var(--text-feature-heading)'};
   return <div role="dialog" aria-modal="true" aria-label="World settings" style={{position:'absolute',inset:0,background:'rgba(23,23,28,.4)',display:'flex',justifyContent:'flex-end',zIndex:20}} onClick={onClose}>
-    <div onClick={e=>e.stopPropagation()} style={{width:640,maxWidth:'100%',background:'#fff',height:'100%',overflow:'auto',padding:'32px 40px',display:'flex',flexDirection:'column',gap:40,boxSizing:'border-box'}}>
+    <div className="mt-settings-panel" onClick={e=>e.stopPropagation()} style={{width:640,maxWidth:'100%',background:'#fff',height:'100%',overflow:'auto',padding:'32px 40px',display:'flex',flexDirection:'column',gap:40,boxSizing:'border-box'}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}><h2 style={{margin:0,font:'var(--text-card-heading)',letterSpacing:'var(--tracking-card-heading)'}}>World settings</h2><Button variant="text" onClick={onClose}>Done</Button></div>
       <section style={sec}><h3 style={h}>Dimensions</h3><p style={{...pLabel,margin:0}}>Rename, reorder, reassign or switch off. Renaming keeps every memory. Up to 7 can be active.</p>
         <div>{world.dims.map((d,i)=><DimRow key={d.id} d={d} i={i} total={world.dims.length} world={world} showActive showRegion onChange={p=>p.active!==undefined?toggle(d):upd(d.id,p)} onMove={dir=>move(i,dir)}/>)}</div>

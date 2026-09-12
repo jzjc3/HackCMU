@@ -2,7 +2,7 @@
 import React from 'react';
 export function Button({variant='primary',size='md',children,style,...rest}:React.ButtonHTMLAttributes<HTMLButtonElement>&{variant?:'primary'|'inverse'|'outline'|'text';size?:'sm'|'md'}){
   const pad = size==='sm'?'8px 16px':'12px 24px';
-  const base:React.CSSProperties={display:'inline-flex',alignItems:'center',gap:8,font:'var(--text-button)',fontSize:size==='sm'?14:16,padding:pad,borderRadius:'var(--radius-pill)',border:'1px solid transparent',cursor:'pointer',textDecoration:'none',transition:'background var(--motion-fast) var(--ease-standard),color var(--motion-fast)'};
+  const base:React.CSSProperties={display:'inline-flex',alignItems:'center',whiteSpace:'nowrap',flexShrink:0,gap:8,font:'var(--text-button)',fontSize:size==='sm'?14:16,padding:pad,borderRadius:'var(--radius-pill)',border:'1px solid transparent',cursor:'pointer',textDecoration:'none',transition:'background var(--motion-fast) var(--ease-standard),color var(--motion-fast)'};
   const v={
     primary:{background:'var(--button-primary-bg)',color:'var(--button-primary-fg)'},
     inverse:{background:'#fff',color:'var(--color-near-black)'},

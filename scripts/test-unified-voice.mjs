@@ -46,6 +46,15 @@ async function setup(){fixture={calls:[],lookupCalls:[],converse:async(context,i
  const {emit,socket}=await setup();await emit(speech('a'));await emit(user('a','Hiking.'));await emit(response('r'));await emit({type:'response.output_audio.delta',response_id:'r',delta:'AAA='});await emit(tool('c','r'));await emit(done('r'));assert.equal(socket.sent.filter(e=>e.type==='response.create').length,0,'tool continuation waits for playback');fixture.playback.onended();await tick();assert.equal(socket.sent.filter(e=>e.type==='response.create').length,1);
 }
 {
+ const {emit,controller,socket}=await setup();await emit(speech('a'));await emit(user('a','Old thread hiking.'));await emit(response('r'));
+ let finish;fixture.converse=()=>new Promise(resolve=>finish=resolve);const pending=emit(tool('c','r'));await tick();
+ controller.openConversation();assert.equal(socket.readyState,3);assert(fixture.stopped);finish(result);await pending;
+ await emit(user('late','Late old thread transcript'));await emit(tool('late','r'));await emit({type:'response.output_audio_transcript.done',item_id:'late-ai',response_id:'r',transcript:'Old reply'});
+ assert.deepEqual(controller.context().history,[]);assert.deepEqual(controller.context().cards,[]);
+ assert(controller.getSnapshot().archives[0].history.some(e=>e.text==='Old thread hiking.'));
+ console.log('Voice thread isolation passed: old socket closed, microphone stopped, late transcript/tool/reply ignored.');
+}
+{
  const {emit,socket}=await setup();await emit(speech('a'));await emit(user('a','Hiking.'));await emit(response('r'));await emit({type:'response.output_audio.delta',response_id:'r',delta:'AAA='});await emit(tool('c','r'));await emit(done('r'));await emit(speech('b'));await tick();assert.equal(socket.sent.filter(e=>e.type==='response.create').length,0,'speech after response.done cancels queued tool continuation');await emit(tool('late-call','r'));assert.equal(fixture.calls.length,1,'late interrupted tool is ignored');
 }
 {
@@ -89,6 +98,17 @@ async function setup(){fixture={calls:[],lookupCalls:[],converse:async(context,i
  const {controller,emit,socket}=await setup();await emit(speech('a'));await emit(user('a','Find my hike.'));await emit(response('r'));
  let finishLookup;fixture.findExperiences=()=>new Promise(resolve=>{finishLookup=resolve});const pending=emit(tool('old-session','r','find_experiences',JSON.stringify({query:'hike'})));await tick();controller.switchMode('text');finishLookup(lookupResult);await pending;
  assert(!socket.sent.some(e=>e.item?.call_id==='old-session'),'a closed session receives no stale tool result');assert(!controller.getSnapshot().history.some(e=>e.text.includes('memory-1')));
+}
+{
+ const {controller,emit,socket:oldSocket}=await setup();await emit(speech('a'));await emit(user('a','Find my hike in this conversation.'));await emit(response('old-r'));
+ let finishLookup;fixture.findExperiences=(query,limit,signal)=>{fixture.lookupCalls.push({query,limit,signal});return new Promise(resolve=>{finishLookup=resolve})};
+ const pending=emit(tool('old-thread-lookup','old-r','find_experiences',JSON.stringify({query:'hike'})));await tick();assert.equal(fixture.lookupCalls.length,1);
+ controller.openConversation();assert.equal(oldSocket.readyState,3,'opening a conversation closes the old voice session');finishLookup(lookupResult);await pending;
+ assert(!oldSocket.sent.some(e=>e.item?.call_id==='old-thread-lookup'),'the old session receives no completed lookup output');assert(!controller.getSnapshot().history.some(e=>e.text.includes('memory-1')),'the old lookup result cannot enter the new conversation');
+ fixture.findExperiences=async(query,limit,signal)=>{fixture.lookupCalls.push({query,limit,signal});return lookupResult};
+ const freshView=RealtimeVoice({controller,world:{dims:[{id:'health',name:'Health',active:true}],memories:[]}});freshView.props.onClick();await tick();const freshSocket=fixture.socket;freshSocket.onopen();
+ const freshEmit=event=>freshSocket.onmessage({data:JSON.stringify(event)});await freshEmit(speech('fresh-a'));await freshEmit(user('fresh-a','Find my hike in this new conversation.'));await freshEmit(response('fresh-r'));await freshEmit(tool('fresh-thread-lookup','fresh-r','find_experiences',JSON.stringify({query:'hike'})));
+ assert.equal(fixture.lookupCalls.length,2,'the same query is issued again in the fresh conversation');assert(freshSocket.sent.some(e=>e.item?.call_id==='fresh-thread-lookup'),'the fresh session settles its lookup');assert(controller.getSnapshot().history.some(e=>e.text.includes('memory-1')),'only the fresh lookup is recorded in the new conversation');
 }
 {
  const {controller,emit}=await setup();const draft=controller.begin();controller.apply(draft,result);controller.finish(draft);const card=controller.getSnapshot().cards[0];

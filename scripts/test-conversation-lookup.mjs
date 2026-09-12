@@ -20,6 +20,37 @@ const { converse, conversationPrompt, conversationSchema } = await load("lib/ser
 const { ConversationController } = await load("lib/conversation.ts");
 const { emptyWorld } = await load("lib/server/world-types.ts");
 
+// V9 integration: completed lookup evidence is archived, pending evidence is discarded.
+{
+  const controller = new ConversationController();
+  let persisted;
+  controller.hydrate(null, value => { persisted = value; });
+  controller.message("user", "Find my old beach memory.");
+  const firstId = controller.getSnapshot().conversationId;
+  const found = { query: "beach", results: [{ id: "saved-beach", text: "A beach walk.", textTruncated: false, categories: [{ id: "health", name: "Health" }], date: "2026-09-01", created: 1 }], hasMore: false };
+  const completed = controller.begin();
+  controller.apply(completed, { reply: "Found a beach walk.", changes: [], lookups: [found] });
+  controller.finish(completed);
+  const pending = controller.begin();
+  assert.equal(controller.openConversation(), true);
+  const secondId = controller.getSnapshot().conversationId;
+  assert(pending.signal.aborted);
+  const late = { ...found, query: "late-result" };
+  controller.recordLookup(pending, late);
+  controller.apply(pending, { reply: "Late.", changes: [], lookups: [late] });
+  assert.deepEqual(controller.context().history, [], "late IFM lookup cannot enter the new conversation");
+  assert(!JSON.stringify(controller.getSnapshot().archives).includes("late-result"), "late lookup cannot mutate the archived conversation");
+  controller.message("user", "This is a separate conversation.");
+  assert.equal(controller.openConversation(firstId), true);
+  assert(controller.context().history.some(entry => entry.text.includes("saved-beach")), "completed lookup evidence survives archive/reopen");
+  assert(!controller.context().history.some(entry => entry.text.includes("separate conversation")));
+  const restored = new ConversationController();
+  restored.hydrate(persisted, () => {});
+  assert(restored.context().history.some(entry => entry.text.includes("saved-beach")));
+  assert.equal(restored.openConversation(secondId), true);
+  assert(!restored.context().history.some(entry => entry.text.includes("saved-beach")), "lookup history stays scoped after persistence and reopening");
+}
+
 const world = emptyWorld();
 const context = { today: "2026-09-12", history: [], cards: [] };
 const proposal = (text) => ({
