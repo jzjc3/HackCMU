@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from tkinter import BOTH, END, LEFT, RIGHT, Button, Canvas, Frame, Label, Scale, Text, Tk, colorchooser
+from tkinter import BOTH, END, LEFT, RIGHT, Button, Canvas, Entry, Frame, Label, OptionMenu, Scale, Text, Tk, colorchooser
 from tkinter import HORIZONTAL, StringVar
+
+from experience_store import ExperienceStore, ExperienceStoreError
 
 
 APP_DIR = Path(__file__).resolve().parent
@@ -22,6 +24,16 @@ DEFAULT_STYLES = {
     "north-america": {"color": "#3f8d6b", "opacity": 0.78},
     "oceania": {"color": "#8b6fc2", "opacity": 0.78},
     "south-america": {"color": "#62a84f", "opacity": 0.78},
+}
+
+CONTINENT_LABELS = {
+    "africa": "Africa",
+    "antarctica": "Antarctica",
+    "asia": "Asia",
+    "europe": "Europe",
+    "north-america": "North America",
+    "oceania": "Australia / Oceania",
+    "south-america": "South America",
 }
 
 
@@ -98,11 +110,16 @@ class ContinentMapApp:
         self.opacity_vars: dict[str, StringVar] = {}
         self.color_buttons: dict[str, Button] = {}
         self.json_update_job = None
+        self.store: ExperienceStore | None = None
+        self.category_var = StringVar(value="africa")
+        self.intensity_var = StringVar(value="50%")
 
         self.build_ui()
+        self.connect_to_database()
         self.draw_map()
         self.render_controls()
         self.sync_json_from_styles()
+        self.load_saved_experiences()
 
     def build_ui(self) -> None:
         main = Frame(self.root, bg="#f5f3ee")
@@ -121,7 +138,7 @@ class ContinentMapApp:
         )
         self.canvas.pack(fill=BOTH, expand=True)
 
-        self.controls_frame = Frame(main, width=360, bg="#ffffff", padx=18, pady=18)
+        self.controls_frame = Frame(main, width=410, bg="#ffffff", padx=18, pady=18)
         self.controls_frame.pack(side=RIGHT, fill=BOTH)
         self.controls_frame.pack_propagate(False)
 
@@ -137,6 +154,8 @@ class ContinentMapApp:
         ).pack(side=LEFT)
 
         Button(header, text="Reset", command=self.reset_styles).pack(side=RIGHT)
+
+        self.build_experience_form()
 
         self.control_rows = Frame(self.controls_frame, bg="#ffffff")
         self.control_rows.pack(fill="x")
@@ -172,6 +191,178 @@ class ContinentMapApp:
             anchor="w",
             wraplength=320,
         ).pack(fill="x", pady=(8, 0))
+
+    def build_experience_form(self) -> None:
+        form = Frame(self.controls_frame, bg="#ffffff")
+        form.pack(fill="x", pady=(0, 16))
+
+        Label(
+            form,
+            text="Experience Input",
+            bg="#ffffff",
+            fg="#18222b",
+            font=("Segoe UI", 11, "bold"),
+            anchor="w",
+        ).pack(fill="x")
+
+        self.database_status = StringVar(value="Checking MongoDB connection...")
+        Label(form, textvariable=self.database_status, bg="#ffffff", fg="#65707a", anchor="w", wraplength=360).pack(
+            fill="x", pady=(3, 8)
+        )
+
+        Label(form, text="Category", bg="#ffffff", fg="#65707a", anchor="w").pack(fill="x")
+        category_menu = OptionMenu(form, self.category_var, *CONTINENT_LABELS.keys())
+        category_menu.configure(anchor="w")
+        category_menu.pack(fill="x", pady=(2, 8))
+        category_menu["menu"].delete(0, END)
+        for continent_id, label in CONTINENT_LABELS.items():
+            category_menu["menu"].add_command(label=label, command=lambda selected=continent_id: self.category_var.set(selected))
+
+        Label(form, text="Title", bg="#ffffff", fg="#65707a", anchor="w").pack(fill="x")
+        self.experience_title = Entry(form)
+        self.experience_title.pack(fill="x", pady=(2, 8))
+
+        Label(form, text="Experience", bg="#ffffff", fg="#65707a", anchor="w").pack(fill="x")
+        self.experience_text = Text(form, height=4, wrap="word", relief="solid", borderwidth=1)
+        self.experience_text.pack(fill="x", pady=(2, 8))
+
+        intensity_row = Frame(form, bg="#ffffff")
+        intensity_row.pack(fill="x")
+        Label(intensity_row, text="Intensity", bg="#ffffff", fg="#65707a").pack(side=LEFT)
+        Label(intensity_row, textvariable=self.intensity_var, bg="#ffffff", fg="#65707a").pack(side=RIGHT)
+
+        self.experience_intensity = Scale(
+            form,
+            from_=0,
+            to=100,
+            resolution=1,
+            orient=HORIZONTAL,
+            showvalue=False,
+            command=self.update_intensity_label,
+            bg="#ffffff",
+            highlightthickness=0,
+        )
+        self.experience_intensity.set(50)
+        self.experience_intensity.pack(fill="x")
+
+        actions = Frame(form, bg="#ffffff")
+        actions.pack(fill="x", pady=(6, 8))
+        self.save_button = Button(actions, text="Save Experience", command=self.save_experience)
+        self.save_button.pack(side=LEFT)
+        Button(actions, text="Clear", command=self.clear_experience_form).pack(side=RIGHT)
+
+        Label(form, text="Saved experiences", bg="#ffffff", fg="#65707a", anchor="w").pack(fill="x")
+        self.saved_experiences = Text(
+            form,
+            height=5,
+            wrap="word",
+            bg="#fbfbf8",
+            fg="#18222b",
+            relief="solid",
+            borderwidth=1,
+            font=("Segoe UI", 8),
+        )
+        self.saved_experiences.pack(fill="x", pady=(2, 0))
+        self.saved_experiences.configure(state="disabled")
+
+    def connect_to_database(self) -> None:
+        try:
+            self.store = ExperienceStore()
+            self.store.connect()
+        except ExperienceStoreError as error:
+            self.store = None
+            self.save_button.configure(state="disabled")
+            self.database_status.set(str(error))
+            return
+
+        self.save_button.configure(state="normal")
+        self.database_status.set("MongoDB connected. Inputs will persist after restart.")
+
+    def update_intensity_label(self, value: str) -> None:
+        self.intensity_var.set(f"{round(float(value))}%")
+
+    def save_experience(self) -> None:
+        if self.store is None:
+            self.status.set("MongoDB is not connected, so the entry was not saved.")
+            return
+
+        category_id = self.category_var.get()
+        title = self.experience_title.get().strip()
+        body = self.experience_text.get("1.0", END).strip()
+
+        if not title:
+            self.status.set("Add a title before saving the experience.")
+            return
+
+        if not body:
+            self.status.set("Add experience details before saving.")
+            return
+
+        intensity = int(float(self.experience_intensity.get()))
+        opacity = max(0.1, min(1, intensity / 100))
+        self.styles[category_id]["opacity"] = opacity
+        self.opacity_vars[category_id].set(f"{round(opacity * 100)}%")
+
+        experience = {
+            "category_id": category_id,
+            "category_label": CONTINENT_LABELS[category_id],
+            "title": title,
+            "body": body,
+            "intensity": intensity,
+            "map_style_snapshot": {
+                "color": self.styles[category_id]["color"],
+                "opacity": self.styles[category_id]["opacity"],
+            },
+        }
+
+        try:
+            inserted_id = self.store.save_experience(experience)
+        except ExperienceStoreError as error:
+            self.status.set(str(error))
+            return
+
+        self.update_map_styles()
+        self.sync_json_from_styles()
+        self.clear_experience_form()
+        self.load_saved_experiences()
+        self.status.set(f"Saved experience to MongoDB: {inserted_id}")
+
+    def clear_experience_form(self) -> None:
+        self.experience_title.delete(0, END)
+        self.experience_text.delete("1.0", END)
+        self.experience_intensity.set(50)
+        self.update_intensity_label("50")
+
+    def load_saved_experiences(self) -> None:
+        if self.store is None:
+            self.render_saved_experiences([])
+            return
+
+        try:
+            experiences = self.store.list_recent_experiences()
+        except ExperienceStoreError as error:
+            self.status.set(str(error))
+            self.render_saved_experiences([])
+            return
+
+        self.render_saved_experiences(experiences)
+
+    def render_saved_experiences(self, experiences: list[dict]) -> None:
+        self.saved_experiences.configure(state="normal")
+        self.saved_experiences.delete("1.0", END)
+
+        if not experiences:
+            self.saved_experiences.insert("1.0", "No saved experiences loaded from MongoDB.")
+        else:
+            rows = []
+            for experience in experiences:
+                rows.append(
+                    f"{experience.get('category_label', 'Unknown')} | {experience.get('intensity', 0)}% | "
+                    f"{experience.get('title', 'Untitled')}"
+                )
+            self.saved_experiences.insert("1.0", "\n".join(rows))
+
+        self.saved_experiences.configure(state="disabled")
 
     def draw_map(self) -> None:
         self.canvas.delete("continent")
