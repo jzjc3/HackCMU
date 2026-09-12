@@ -1,6 +1,8 @@
-# Live Continent Map App
+# HackCMU
 
-A local desktop app that renders a CPU-only 2D continent map from Natural Earth geometry. Each continent, including Antarctica, can be recolored and visually faded live through controls or direct JSON parameter edits.
+Mind travel prototype: a local desktop app that renders a live, CPU-only 2D continent map.
+
+Each continent, including Antarctica, can be recolored and visually faded live through controls or direct JSON parameter edits. The map geometry comes from Natural Earth data.
 
 ## Run The App
 
@@ -27,4 +29,3 @@ launch_continent_map_app.bat
 - `data/continents.geojson`: generated map datapoints.
 - `scripts/build-continents-data.mjs`: repeatable Natural Earth data generation script.
 - `IMPLEMENTATION.md`: implementation steps and tools used.
-
