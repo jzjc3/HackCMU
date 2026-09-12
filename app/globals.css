@@ -10,6 +10,12 @@
 body{margin:0;overflow:hidden}
 .mt-region:focus-visible .coast{stroke:#4c6ee6;stroke-width:2.5px}
 .mt-region:hover .coast{stroke-width:1.6px}
+/* Active only after the sprite loads and a mouse is over this particular map. */
+svg[data-explorer-active],svg[data-explorer-active] *{cursor:none!important}
+.mt-explorer-cursor{position:absolute;inset:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:3}
+.mt-explorer-cursor *{pointer-events:none}
+.mt-explorer-sprite{position:absolute;left:-37px;top:-62px;width:30px;height:58px;object-fit:contain;user-select:none;will-change:transform;filter:drop-shadow(0 1px 1px rgba(23,23,28,.18))}
+.mt-explorer-hotspot{position:absolute;left:-3px;top:-3px;width:6px;height:6px;box-sizing:border-box;border-radius:50%;border:1px solid #fff;background:#17171c;box-shadow:0 0 0 1px rgba(23,23,28,.45)}
 .mt-lvl{animation:mt-rise .5s ease-out both}
 .mt-reduced .mt-lvl{animation:none}
 @keyframes mt-rise{from{opacity:0}to{opacity:1}}

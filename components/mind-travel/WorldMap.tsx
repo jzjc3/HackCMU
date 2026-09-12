@@ -6,6 +6,7 @@ import {Button,Chip,MonoLabel} from './Primitives';
 import * as d3 from 'd3';
 import {buildTerrain} from './terrain';
 import type {RegionFeature} from './geo';
+import {MapExplorerCursor} from './MapExplorerCursor';
 const NEUTRAL = '#d9d9dd';
 const W=960,H=500;
 export const mix=(a:string,b:string,t:number)=>{const p=(h:string)=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));const x=p(a),y=p(b);return '#'+x.map((v,i)=>Math.round(v+(y[i]-v)*t).toString(16).padStart(2,'0')).join('')};
@@ -26,9 +27,9 @@ const tint=(base:string,T:typeof THEMES.cartographic,k:number)=>k>=7?mix(base,'#
 export type Direction=keyof typeof THEMES; export type Geography='recognizable'|'abstract'; export type HoverMode='none'|'keywords'|'photos';
 export type ZoomApi={in:()=>void;out:()=>void;reset:()=>void};
 export type Preview={region:Region;color?:string|null;opacity?:number|null}|null;
-type MapProps={features:RegionFeature[];world:World;selected:Region|null;onSelect:(r:Region)=>void;direction?:Direction;geography?:Geography;highlight?:Region[];reducedMotion?:boolean;preview?:Preview;zoomRef?:React.MutableRefObject<ZoomApi|undefined>;fitPad?:number;hoverMode?:HoverMode;bridgeFloor?:number;bridgeHalfLife?:number};
+type MapProps={features:RegionFeature[];world:World;selected:Region|null;onSelect:(r:Region)=>void;direction?:Direction;geography?:Geography;highlight?:Region[];reducedMotion?:boolean;preview?:Preview;zoomRef?:React.MutableRefObject<ZoomApi|undefined>;fitPad?:number;hoverMode?:HoverMode;bridgeFloor?:number;bridgeHalfLife?:number;explorerCursor?:boolean};
 
-export function WorldMap({features,world,selected,onSelect,direction='cartographic',geography='recognizable',highlight=[],reducedMotion=false,preview,zoomRef,fitPad=16,hoverMode='none',bridgeFloor=8,bridgeHalfLife=12}:MapProps){
+export function WorldMap({features,world,selected,onSelect,direction='cartographic',geography='recognizable',highlight=[],reducedMotion=false,preview,zoomRef,fitPad=16,hoverMode='none',bridgeFloor=8,bridgeHalfLife=12,explorerCursor=false}:MapProps){
   const T=THEMES[direction];
   const svgRef=React.useRef<SVGSVGElement>(null);const gRef=React.useRef<SVGGElement>(null);const wrapRef=React.useRef<HTMLDivElement>(null);
   const [hov,setHov]=React.useState<{r:Region;x:number;y:number;w:number;h:number}|null>(null);
@@ -68,7 +69,7 @@ export function WorldMap({features,world,selected,onSelect,direction='cartograph
       {R.n>0&&<div style={{display:'flex',flexWrap:'wrap',gap:6}}>{kws.map(([w,c])=><span key={w} style={{font:'var(--text-micro)',fontFamily:'var(--font-mono)',padding:'3px 8px',borderRadius:30,background:mix(dim.color,'#ffffff',.86),color:mix(dim.color,'#000000',.5),textTransform:'lowercase'}}>{w}{c>1?` ·${c}`:''}</span>)}</div>}
       {recent&&<div style={{display:'flex',flexDirection:'column',gap:2,borderTop:'1px solid var(--border-hairline)',paddingTop:10}}><span style={{font:'var(--text-micro)',fontFamily:'var(--font-mono)',color:'var(--text-muted)',textTransform:'uppercase',letterSpacing:.5}}>Most recent · {fmtDate(recent.date)}</span><span style={{font:'var(--text-caption)',color:'var(--text-primary)',display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{recent.title||recent.text}</span></div>}
     </div>})();
-  return <div ref={wrapRef} style={{position:'relative',width:'100%',height:'100%'}}><svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} style={{width:'100%',height:'100%',display:'block',background:T.bg,cursor:'grab'}} role="group" aria-label="World map of life dimensions">
+  return <div ref={wrapRef} style={{position:'relative',width:'100%',height:'100%',isolation:'isolate',zIndex:0}}><svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} style={{width:'100%',height:'100%',display:'block',background:T.bg,cursor:'grab'}} role="group" aria-label="World map of life dimensions">
     <defs>
       {shapes.map(s=><clipPath key={s.f.id} id={'clip-'+s.f.id.replace(/\s/g,'')}><path d={s.d}/></clipPath>)}
       <pattern id="mt-dots" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="2.5" cy="2.5" r=".55" fill={T.dot}/></pattern>
@@ -105,5 +106,5 @@ export function WorldMap({features,world,selected,onSelect,direction='cartograph
           <text x={lx} y={ly+13} textAnchor="middle" fontSize="8" fill={dim?dark:'#8a8a99'} stroke={T.land} strokeWidth="2.5" strokeOpacity=".9" paintOrder="stroke" style={{fontFamily:'var(--font-mono)',textTransform:'uppercase',letterSpacing:.5}}>{dim?(n===0?'No memories yet':n+(n===1?' memory':' memories')):'Available'}</text>
         </g>})}
     </g>
-  </svg>{card}</div>;
+  </svg>{explorerCursor&&<MapExplorerCursor surfaceRef={svgRef} reducedMotion={reducedMotion}/>}{card}</div>;
 }

@@ -17,7 +17,8 @@
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate",
     "test:conversation": "node scripts/test-conversation.mjs && node scripts/test-conversation-server.mjs",
-    "test:images": "node scripts/test-image-upload.mjs && node scripts/test-media.mjs"
+    "test:images": "node scripts/test-image-upload.mjs && node scripts/test-media.mjs",
+    "test:map-explorer": "node scripts/test-map-explorer.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
