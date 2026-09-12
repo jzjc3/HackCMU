@@ -6,7 +6,7 @@ const React={useState:initial=>{const i=cursor++;slots[i]??={value:typeof initia
 globalThis.__mediaTest={React,Button:'button',clientApi:new Proxy({},{get:(_,key)=>api[key]})};
 React.useLayoutEffect=React.useEffect;
 const source=(await readFile('components/mind-travel/Media.tsx','utf8')).replace(/^import .*;\r?\n/gm,'');
-const {AttachmentEditor}=await import(moduleUrl('const {React,Button,clientApi}=globalThis.__mediaTest;\n'+compile(source)));
+const {AttachmentEditor,DictationButton}=await import(moduleUrl('const {React,Button,clientApi}=globalThis.__mediaTest;\n'+compile(source)));
 const nodes=view=>!view||typeof view!=='object'?[]:[view,...(view.children??[]).flat(Infinity).flatMap(nodes)];
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
 function setup(){slots=[];cursor=0;cleanups=[];busy=[];changes=[];api={uploadAttachment:()=>new Promise(resolve=>finish=resolve),getAttachment:async()=>({attachment:{kind:'upload'}}),deleteAttachment:async()=>{}}}
@@ -24,3 +24,14 @@ const {Composer}=await import(moduleUrl('const {React,AttachmentEditor,Button,Ch
 setup();let saves=0;const props={world:{dims:[{id:'health',active:true,name:'Health'}]},initial:{text:'Lunch',date:'2026-09-12',dims:['health']},onCancel(){},onSave:async()=>saves++,onRetry:async()=>saves++,saveState:null,draftKey:'test'};
 cursor=0;view=Composer(props);const image=nodes(view).find(n=>n.type===AttachmentEditor);const save=nodes(view.props.footer).find(n=>n.type==='button'&&n.children.includes('Save'));image.props.onBusyChange(true);save.props.onClick();await tick();assert.equal(saves,0,'same-tick Save cannot outrun upload');cursor=0;view=Composer(props);assert(nodes(view.props.footer).some(n=>n.type==='button'&&n.children.includes('Preparing image…')&&n.props.disabled));image.props.onBusyChange(false);save.props.onClick();await tick();assert.equal(saves,1);
 console.log('Media UI passed: pending Save guard, busy button, duplicate selections, latest draft merge, unmount cleanup, visible errors and ten-image limit.');
+// Changing conversation remounts DictationButton; late ASR success and failure must stay in the old instance.
+for(const fails of [false,true]){
+ setup();let recorder,settle,received=[],errors=[],stopped=false;
+ Object.defineProperty(globalThis,'navigator',{value:{mediaDevices:{getUserMedia:async()=>({getTracks:()=>[{stop(){stopped=true}}]})}},configurable:true});
+ globalThis.MediaRecorder=class{static isTypeSupported=()=>true;mimeType='audio/webm';state='inactive';constructor(){recorder=this}start(){this.state='recording'}stop(){this.state='inactive';void this.onstop()}};
+ api.transcribe=()=>new Promise((resolve,reject)=>settle=()=>fails?reject(new Error('Old ASR failed')):resolve({text:'Old transcript'}));
+ cursor=0;const dictation=DictationButton({onText:text=>received.push(text),onError:error=>errors.push(error)});
+ dictation.props.onClick();await tick();recorder.stop();await tick();cleanups.forEach(fn=>fn());settle();await tick();
+ assert(stopped);assert.deepEqual(received,[]);assert.deepEqual(errors,[]);
+}
+console.log('Dictation thread isolation passed: late transcription success and failure ignored after unmount.');

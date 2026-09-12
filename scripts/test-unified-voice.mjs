@@ -43,5 +43,14 @@ async function setup(){fixture={calls:[],converse:async(context,intent,signal)=>
 }
 console.log('Voice adapter passed: shared context, revised transcripts, duplicate events/tools, early tool calls, Save refresh, cancellation, interruption, timeout recovery and playback ordering.');
 {
+ const {emit,controller,socket}=await setup();await emit(speech('a'));await emit(user('a','Old thread hiking.'));await emit(response('r'));
+ let finish;fixture.converse=()=>new Promise(resolve=>finish=resolve);const pending=emit(tool('c','r'));await tick();
+ controller.openConversation();assert.equal(socket.readyState,3);assert(fixture.stopped);finish(result);await pending;
+ await emit(user('late','Late old thread transcript'));await emit(tool('late','r'));await emit({type:'response.output_audio_transcript.done',item_id:'late-ai',response_id:'r',transcript:'Old reply'});
+ assert.deepEqual(controller.context().history,[]);assert.deepEqual(controller.context().cards,[]);
+ assert(controller.getSnapshot().archives[0].history.some(e=>e.text==='Old thread hiking.'));
+ console.log('Voice thread isolation passed: old socket closed, microphone stopped, late transcript/tool/reply ignored.');
+}
+{
  const {emit,socket}=await setup();await emit(speech('a'));await emit(user('a','Hiking.'));await emit(response('r'));await emit({type:'response.output_audio.delta',response_id:'r',delta:'AAA='});await emit(tool('c','r'));await emit(done('r'));await emit(speech('b'));await tick();assert.equal(socket.sent.filter(e=>e.type==='response.create').length,0,'speech after response.done cancels queued tool continuation');await emit(tool('late-call','r'));assert.equal(fixture.calls.length,1,'late interrupted tool is ignored');
 }

@@ -52,13 +52,22 @@ export function Converse({world,onCancel,onSaveAll,useModel=true,modeSwitch,cont
     const drafts=selected.map(card=>({...draftsFromProposals([card],card.date??today())[0],id:card.id}));
     await onSaveAll(drafts);
   });
-  return <Panel title="Describe your day" eyebrow={modeSwitch} onBack={onCancel} backLabel="Close" footer={<div style={{display:'flex',flexDirection:'column',gap:10,width:'100%'}}>
-    {keep.length>0&&<div style={{display:'flex',gap:8}}><Button onClick={()=>void save()} disabled={state.saving.length>0}>{state.saving.length?'Saving…':`Save ${keep.length} ${keep.length===1?'experience':'experiences'}`}</Button><Button variant="text" onClick={()=>controller.discard(cards.map(c=>c.id))} disabled={state.saving.length>0}>Discard</Button></div>}
-    {state.mode==='text'&&<div style={{display:'flex',gap:8,alignItems:'center'}}><textarea value={state.draft} onChange={e=>controller.setDraft(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey))void send()}} placeholder="Describe an experience, or correct a draft…" maxLength={8000} rows={2} aria-label="Describe your experiences" style={{...field,flex:1,resize:'none',minWidth:0}}/><DictationButton onText={text=>controller.setDraft([controller.getSnapshot().draft,text].filter(Boolean).join(" "))} onError={error=>controller.setError(error)} disabled={state.pending}/><Button size="sm" onClick={()=>void send()} disabled={!state.draft.trim()||state.pending}>{state.pending?'Thinking…':'Send'}</Button></div>}
+  const conversationTitle=(history:typeof state.history)=>history.find(e=>e.role==='user')?.text.slice(0,55)||'New conversation';
+  return <Panel title="Describe your day" eyebrow={modeSwitch} onBack={onCancel} backLabel="Close" toolbar={<div style={{display:'flex',flexDirection:'column',gap:10}}>
+    <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
+      {state.archives.length>0&&<select aria-label="Conversation history" value={state.conversationId} disabled={state.saving.length>0} onChange={e=>controller.openConversation(e.target.value)} style={{...field,flex:'1 1 140px',minWidth:0,width:0,padding:'8px 10px'}}>
+        <option value={state.conversationId}>{conversationTitle(state.history)}</option>
+        {state.archives.map(session=><option key={session.id} value={session.id}>{conversationTitle(session.history)}</option>)}
+      </select>}
+      <Button size="sm" variant="text" onClick={()=>controller.openConversation()} disabled={state.saving.length>0} title={state.saving.length?'Please wait for Save to finish':undefined}>+ New conversation</Button>
+    </div>
+    <RealtimeVoice key={state.conversationId} controller={controller} world={world} disabled={!useModel}/>
+  </div>} footer={<div style={{display:'flex',flexDirection:'column',gap:10,width:'100%'}}>
+    {keep.length>0&&<div style={{display:'flex',gap:8,flexWrap:'wrap'}}><Button onClick={()=>void save()} disabled={state.saving.length>0}>{state.saving.length?'Saving…':`Save ${keep.length} ${keep.length===1?'experience':'experiences'}`}</Button><Button variant="text" onClick={()=>controller.discard(cards.map(c=>c.id))} disabled={state.saving.length>0}>Discard</Button></div>}
+    {state.mode==='text'&&<div style={{display:'flex',gap:8,alignItems:'center'}}><textarea value={state.draft} onChange={e=>controller.setDraft(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey))void send()}} placeholder="Describe an experience, or correct a draft…" maxLength={8000} rows={2} aria-label="Describe your experiences" style={{...field,flex:1,resize:'none',minWidth:0}}/><DictationButton key={state.conversationId} onText={text=>controller.setDraft([controller.getSnapshot().draft,text].filter(Boolean).join(" "))} onError={error=>controller.setError(error)} disabled={state.pending}/><Button size="sm" onClick={()=>void send()} disabled={!state.draft.trim()||state.pending}>{state.pending?'Thinking…':'Send'}</Button></div>}
   </div>}>
     <div style={{display:'flex',flexDirection:'column',gap:12,flex:1,minHeight:0}}>
       {!state.history.length&&<Bubble who="ai">Tell me about your day, or one thing that happened. I’ll prepare a draft for you to review before saving.</Bubble>}
-      <RealtimeVoice controller={controller} world={world} disabled={!useModel}/>
       {state.history.filter(e=>e.role!=='event').map(entry=><Bubble key={entry.id} who={entry.role==='user'?'me':'ai'}>{entry.text}</Bubble>)}
       {state.pending&&<span role="status" style={pLabel}>{state.mode==='voice'?'Preparing your drafts…':'Thinking…'}</span>}
       {cards.map(card=><fieldset key={card.id} disabled={state.saving.includes(card.id)} style={{margin:0,padding:0,border:0,minWidth:0}}><ProposalCard it={card} world={world} onChange={proposal=>controller.edit(card.id,proposal)} onRemove={()=>controller.edit(card.id,{...card,removed:!card.removed})}/>{card.date&&<span style={pLabel}>Date: {card.date}</span>}</fieldset>)}

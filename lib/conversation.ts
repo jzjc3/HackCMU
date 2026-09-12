@@ -5,12 +5,15 @@ export type HistoryEntry={id:string;role:'user'|'assistant'|'event';text:string;
 export type ExperienceCard=Proposal&{id:string;revision:number;status:'draft'|'saved'|'discarded';date:string|null};
 export type ConversationContext={history:HistoryEntry[];cards:ExperienceCard[];today:string};
 export type ConversationResult={reply:string;changes:{cardId:string|null;proposal:Proposal&{date:string|null}}[]};
-export type ConversationState={history:HistoryEntry[];cards:ExperienceCard[];mode:ChatMode;pending:boolean;saving:string[];error:string|null;draft:string};
+export type ConversationSession={id:string;history:HistoryEntry[];cards:ExperienceCard[];draft:string};
+export type ConversationState={conversationId:string;archives:ConversationSession[];history:HistoryEntry[];cards:ExperienceCard[];mode:ChatMode;pending:boolean;saving:string[];error:string|null;draft:string};
 export type ModelRequest={epoch:number;signal:AbortSignal;context:ConversationContext};
+const validHistory=(entries:HistoryEntry[])=>entries.filter(e=>e&&typeof e.id==='string'&&typeof e.text==='string'&&['user','assistant','event'].includes(e.role)&&e.status==='complete');
+const validCards=(cards:ExperienceCard[])=>cards.filter(c=>c&&typeof c.id==='string'&&typeof c.text==='string'&&Array.isArray(c.dims));
 
 /** Shared application state. Provider sessions never own drafts or Save operations. */
 export class ConversationController{
-  private state:ConversationState={history:[],cards:[],mode:'text',pending:false,saving:[],error:null,draft:''};
+  private state:ConversationState={conversationId:crypto.randomUUID(),archives:[],history:[],cards:[],mode:'text',pending:false,saving:[],error:null,draft:''};
   private listeners=new Set<()=>void>();
   private epoch=0;
   private request?:AbortController;
@@ -19,14 +22,27 @@ export class ConversationController{
   subscribe=(listener:()=>void)=>{this.listeners.add(listener);return()=>{this.listeners.delete(listener)}};
   private publish(patch:Partial<ConversationState>){
     this.state={...this.state,...patch};
-    this.persist?.({version:2,history:this.state.history.filter(e=>e.status==='complete'),cards:this.state.cards,draft:this.state.draft});
+    this.persist?.({version:2,conversationId:this.state.conversationId,archives:this.state.archives,history:this.state.history.filter(e=>e.status==='complete'),cards:this.state.cards,draft:this.state.draft});
     this.listeners.forEach(listener=>listener());
   }
   hydrate(value:unknown,persist:(value:unknown)=>void){
-    const saved=value as {version?:number;history?:HistoryEntry[];cards?:ExperienceCard[];msgs?:{who:string;text:string}[];items?:Proposal[];draft?:string}|null;
-    const history=saved?.version===2&&Array.isArray(saved.history)?saved.history.filter(e=>typeof e.id==='string'&&typeof e.text==='string'&&['user','assistant','event'].includes(e.role)&&e.status==='complete'):saved?.msgs?.filter(m=>typeof m.text==='string').map(m=>({id:crypto.randomUUID(),role:m.who==='me'?'user' as const:'assistant' as const,text:m.text,status:'complete' as const}))??[];
-    const cards=saved?.version===2&&Array.isArray(saved.cards)?saved.cards.filter(c=>typeof c.id==='string'&&typeof c.text==='string'&&Array.isArray(c.dims)):saved?.items?.map(p=>({...p,id:crypto.randomUUID(),revision:0,status:'draft' as const,date:null}))??[];
-    this.persist=persist;this.publish({history,cards,draft:saved?.draft??''});
+    const saved=value as {version?:number;conversationId?:string;archives?:ConversationSession[];history?:HistoryEntry[];cards?:ExperienceCard[];msgs?:{who:string;text:string}[];items?:Proposal[];draft?:string}|null;
+    const history=saved?.version===2&&Array.isArray(saved.history)?validHistory(saved.history):saved?.msgs?.filter(m=>typeof m.text==='string').map(m=>({id:crypto.randomUUID(),role:m.who==='me'?'user' as const:'assistant' as const,text:m.text,status:'complete' as const}))??[];
+    const cards=saved?.version===2&&Array.isArray(saved.cards)?validCards(saved.cards):saved?.items?.map(p=>({...p,id:crypto.randomUUID(),revision:0,status:'draft' as const,date:null}))??[];
+    const archives=Array.isArray(saved?.archives)?saved.archives.filter(s=>s&&typeof s.id==='string'&&Array.isArray(s.history)&&Array.isArray(s.cards)&&typeof s.draft==='string').map(s=>({...s,history:validHistory(s.history),cards:validCards(s.cards)})):[];
+    this.persist=persist;this.publish({history,cards,draft:saved?.draft??'',conversationId:saved?.conversationId||this.state.conversationId,archives});
+  }
+  /** Switching threads discards model work, but cannot interrupt an app Save. */
+  openConversation(id?:string){
+    if(this.state.saving.length||id===this.state.conversationId)return false;
+    const target=id?this.state.archives.find(session=>session.id===id):{id:crypto.randomUUID(),history:[],cards:[],draft:''};
+    if(!target)return false;
+    this.switchMode('text');
+    const {conversationId,history,cards,draft}=this.state;
+    const archives=this.state.archives.filter(session=>session.id!==target.id);
+    if(history.length||cards.length||draft.trim())archives.unshift({id:conversationId,history,cards,draft});
+    this.publish({conversationId:target.id,history:target.history,cards:target.cards,draft:target.draft,archives,error:null});
+    return true;
   }
   context():ConversationContext{
     // Both providers receive this same bounded semantic context, never audio fragments.
