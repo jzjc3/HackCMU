@@ -1,0 +1,2 @@
+# HackCMU
+mind travel
