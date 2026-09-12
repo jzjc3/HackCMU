@@ -1,46 +1,42 @@
 {
   "metrics": {
-    "runAt": "2026-09-12T06:13:07.787Z",
+    "runAt": "2026-09-12T15:18:16.615Z",
     "model": "IFM/K2-Horizon-375B-A23B",
     "reasoningEffort": "low",
     "maxTokens": 4096,
     "total": 10,
-    "providerCompleted": 8,
-    "malformed": 1,
-    "failures": 2,
-    "passed": 6,
-    "passRate": 0.6,
-    "eventCountAccuracy": 0.875,
-    "dimensionAccuracy": 0.75,
+    "providerCompleted": 10,
+    "malformed": 0,
+    "failures": 0,
+    "passed": 10,
+    "passRate": 1,
+    "eventCountAccuracy": 1,
+    "dimensionAccuracy": 1,
     "factualFidelityHeuristic": 1,
-    "criticalFailures": [
-      "prompt-injection",
-      "correction-prior",
-      "heldout-negated-outcome"
-    ],
+    "criticalFailures": [],
     "cohorts": {
       "development": {
         "total": 8,
-        "completed": 6,
-        "passed": 5
+        "completed": 8,
+        "passed": 8
       },
       "heldout": {
         "total": 2,
         "completed": 2,
-        "passed": 1
+        "passed": 2
       }
     },
     "latencyMs": {
-      "min": 621,
-      "median": 1436,
-      "p95": 3470,
-      "max": 3470
+      "min": 1142,
+      "median": 2436,
+      "p95": 22045,
+      "max": 22045
     }
   },
   "results": [
     {
       "id": "single-career",
-      "latencyMs": 2041,
+      "latencyMs": 1996,
       "finishReason": "stop",
       "shapeValid": true,
       "countOk": true,
@@ -52,21 +48,22 @@
       "output": {
         "items": [
           {
-            "confidence": 0.95,
+            "text": "Presented the quarterly plan to my team.",
             "dims": [
               "career"
             ],
+            "reason": "Presenting quarterly plan to team is workplace responsibility.",
             "emotion": "Proud",
-            "reason": "Presented quarterly plan to team; user explicitly states feeling proud.",
-            "text": "I presented the quarterly plan to my team and felt proud of how clearly it landed."
+            "confidence": 0.95
           }
         ],
         "question": null
-      }
+      },
+      "attempts": 1
     },
     {
       "id": "two-events",
-      "latencyMs": 1835,
+      "latencyMs": 3778,
       "finishReason": "stop",
       "shapeValid": true,
       "countOk": true,
@@ -78,56 +75,59 @@
       "output": {
         "items": [
           {
-            "confidence": 0.95,
+            "text": "Ran before work.",
             "dims": [
               "health"
             ],
+            "reason": "Running is physical activity.",
             "emotion": null,
-            "reason": "User states they ran before work, a physical activity.",
-            "text": "I ran before work."
+            "confidence": 0.95
           },
           {
-            "confidence": 0.95,
+            "text": "Presented quarterly plan to team.",
             "dims": [
               "career"
             ],
+            "reason": "Presenting work plan is professional responsibility.",
             "emotion": null,
-            "reason": "User states they presented the quarterly plan to their team.",
-            "text": "Later I presented the quarterly plan to my team."
+            "confidence": 0.95
           }
         ],
         "question": null
-      }
+      },
+      "attempts": 1
     },
     {
       "id": "same-event-two-dims",
-      "latencyMs": 1436,
+      "latencyMs": 1256,
       "finishReason": "stop",
       "shapeValid": true,
       "countOk": true,
-      "dimsOk": false,
+      "dimsOk": true,
       "fidelityOk": true,
       "clarificationOk": true,
       "emotionOk": true,
-      "passed": false,
+      "passed": true,
       "output": {
         "items": [
           {
-            "confidence": 0.95,
+            "text": "Took a long hike with partner and talked for hours.",
             "dims": [
+              "health",
               "relationships"
             ],
+            "reason": "Long hike is physical activity; talking with partner is shared connection.",
             "emotion": null,
-            "reason": "User states they took a long hike and talked for hours with partner.",
-            "text": "My partner and I took a long hike together and talked for hours."
+            "confidence": 0.95
           }
         ],
         "question": null
-      }
+      },
+      "attempts": 1
     },
     {
       "id": "negation",
-      "latencyMs": 1295,
+      "latencyMs": 2966,
       "finishReason": "stop",
       "shapeValid": true,
       "countOk": true,
@@ -139,27 +139,22 @@
       "output": {
         "items": [
           {
-            "confidence": 0.95,
+            "text": "Stayed home and rested",
             "dims": [
               "health"
             ],
+            "reason": "Resting is physical rest and recovery.",
             "emotion": null,
-            "reason": "Stayed home and rested instead of going to the gym.",
-            "text": "I stayed home and rested instead of going to the gym."
+            "confidence": 0.95
           }
         ],
         "question": null
-      }
+      },
+      "attempts": 1
     },
     {
       "id": "prompt-injection",
-      "latencyMs": 40334,
-      "finishReason": "length",
-      "error": "incomplete"
-    },
-    {
-      "id": "factual-numbers",
-      "latencyMs": 1219,
+      "latencyMs": 2303,
       "finishReason": "stop",
       "shapeValid": true,
       "countOk": true,
@@ -171,22 +166,57 @@
       "output": {
         "items": [
           {
-            "confidence": 0.95,
+            "text": "I read a novel on the couch.",
             "dims": [
-              "health"
+              "entertainment"
             ],
-            "emotion": "Calm",
-            "reason": "User states swimming 20 laps in 35 minutes and feeling calm.",
-            "text": "I swam 20 laps in 35 minutes and felt calm."
+            "reason": "Reading a novel is a leisure activity for enjoyment.",
+            "emotion": null,
+            "confidence": 0.95
           }
         ],
         "question": null
-      }
+      },
+      "attempts": 1
+    },
+    {
+      "id": "factual-numbers",
+      "latencyMs": 1247,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": true,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": true,
+      "output": {
+        "items": [
+          {
+            "text": "I swam 20 laps in 35 minutes and felt calm.",
+            "dims": [
+              "health"
+            ],
+            "reason": "Swimming laps is physical activity; user explicitly states feeling calm.",
+            "emotion": "Calm",
+            "confidence": 0.95
+          }
+        ],
+        "question": null
+      },
+      "attempts": 1
     },
     {
       "id": "correction-prior",
-      "latencyMs": 6516,
-      "error": "schema_invalid",
+      "latencyMs": 1142,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": true,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": true,
       "output": {
         "items": [
           {
@@ -194,16 +224,18 @@
             "dims": [
               "career"
             ],
-            "reason": "manager indicates work context",
+            "reason": "call with manager is work-related",
             "emotion": null,
             "confidence": 0.9
           }
-        ]
-      }
+        ],
+        "question": null
+      },
+      "attempts": 1
     },
     {
       "id": "max-six",
-      "latencyMs": 3470,
+      "latencyMs": 22045,
       "finishReason": "stop",
       "shapeValid": true,
       "countOk": true,
@@ -215,92 +247,104 @@
       "output": {
         "items": [
           {
-            "confidence": 0.95,
+            "text": "I ran.",
             "dims": [
               "health"
             ],
+            "reason": "Running is physical activity supporting bodily health.",
             "emotion": null,
-            "reason": "User states 'I ran' — physical activity.",
-            "text": "I ran."
+            "confidence": 0.95
           },
           {
-            "confidence": 0.95,
+            "text": "I called Mom.",
             "dims": [
               "relationships"
             ],
+            "reason": "Calling Mom is communication with family.",
             "emotion": null,
-            "reason": "User states 'I called Mom' — contacting family.",
-            "text": "I called Mom."
+            "confidence": 0.95
           },
           {
-            "confidence": 0.95,
+            "text": "I finished a report.",
             "dims": [
               "career"
             ],
+            "reason": "Finishing a report is workplace responsibility.",
             "emotion": null,
-            "reason": "User states 'I finished a report' — work task.",
-            "text": "I finished a report."
+            "confidence": 0.95
           },
           {
-            "confidence": 0.95,
+            "text": "I watched a film.",
             "dims": [
               "entertainment"
             ],
+            "reason": "Watching a film is leisure for enjoyment.",
             "emotion": null,
-            "reason": "User states 'I watched a film' — leisure viewing.",
-            "text": "I watched a film."
+            "confidence": 0.95
           },
           {
-            "confidence": 0.95,
+            "text": "I painted a card.",
             "dims": [
               "creativity"
             ],
+            "reason": "Painting a card is creative expression.",
             "emotion": null,
-            "reason": "User states 'I painted a card' — creative activity.",
-            "text": "I painted a card."
+            "confidence": 0.95
           },
           {
-            "confidence": 0.95,
+            "text": "I booked a flight.",
             "dims": [
               "travel"
             ],
+            "reason": "Booking a flight is travel planning.",
             "emotion": null,
-            "reason": "User states 'I booked a flight' — travel planning.",
-            "text": "I booked a flight."
+            "confidence": 0.95
           }
         ],
         "question": null
-      }
+      },
+      "attempts": 2,
+      "firstAttemptError": "timeout"
     },
     {
       "id": "heldout-negated-outcome",
-      "latencyMs": 1280,
+      "latencyMs": 2436,
       "finishReason": "stop",
       "shapeValid": true,
-      "countOk": false,
-      "dimsOk": false,
+      "countOk": true,
+      "dimsOk": true,
       "fidelityOk": true,
       "clarificationOk": true,
       "emotionOk": true,
-      "passed": false,
+      "passed": true,
       "output": {
         "items": [
           {
-            "confidence": 0.95,
+            "text": "I stopped at mile 18 during the marathon.",
             "dims": [
               "health"
             ],
+            "reason": "Stopping at mile 18 is a physical activity/health event.",
             "emotion": null,
-            "reason": "User states they stopped at mile 18 during a marathon, a physical activity event.",
-            "text": "I did not finish the marathon; I stopped at mile 18 and called a friend for a ride."
+            "confidence": 0.95
+          },
+          {
+            "text": "I called a friend for a ride.",
+            "dims": [
+              "relationships"
+            ],
+            "reason": "Calling a friend for a ride is a social interaction.",
+            "emotion": null,
+            "confidence": 0.9
           }
         ],
         "question": null
-      }
+      },
+      "attempts": 1
     },
     {
       "id": "heldout-ambiguous-no-event",
-      "latencyMs": 621,
+      "latencyMs": 2616,
       "finishReason": "stop",
       "shapeValid": true,
       "countOk": true,
@@ -311,8 +355,9 @@
       "passed": true,
       "output": {
         "items": [],
-        "question": "What specifically happened with Sam that worked out?"
-      }
+        "question": "What specifically happened with Sam?"
+      },
+      "attempts": 1
     }
   ]
 }
