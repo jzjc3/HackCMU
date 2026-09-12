@@ -118,4 +118,12 @@ async function setup(){fixture={calls:[],lookupCalls:[],converse:async(context,i
 {
  const requests=[];globalThis.fetch=async(url,options)=>{requests.push({url,options});return Response.json(lookupResult)};const {clientApi:realClientApi}=await loader()('lib/client-api.ts');const abort=new AbortController();assert.deepEqual(await realClientApi.findExperiences('山%',2,abort.signal),lookupResult);assert.equal(requests[0].url,'/api/experiences/find');assert.equal(requests[0].options.signal,abort.signal);assert.deepEqual(JSON.parse(requests[0].options.body),{query:'山%',limit:2});assert.equal(requests[0].options.credentials,'same-origin');
 }
-console.log('Voice adapter passed: shared context, lookup dispatch/results, invalid and duplicate tools, bounded chains, Save independence, cancellation, interruption, timeout recovery and playback ordering.');
+{
+ const {controller,emit,socket}=await setup();await emit(speech('error-turn'));await emit(user('error-turn','Find my hike.'));await emit(response('error-response'));
+ fixture.findExperiences=async()=>{throw new Error('Lookup temporarily unavailable.')};
+ await emit(tool('failed-lookup','error-response','find_experiences',JSON.stringify({query:'hike'})));
+ assert.equal(controller.getSnapshot().pending,false);
+ assert.equal(controller.getSnapshot().error,'Lookup temporarily unavailable.','tool settlement must preserve the visible error');
+ assert.equal(JSON.parse(socket.sent.find(e=>e.item?.call_id==='failed-lookup').item.output).status,'failed');
+}
+console.log('Voice adapter passed: shared context, lookup dispatch/results, invalid and duplicate tools, bounded chains, Save independence, cancellation, interruption, timeout recovery, playback ordering and visible failures.');

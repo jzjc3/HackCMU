@@ -147,7 +147,7 @@ export function RealtimeVoice({controller,world,disabled=false}:{controller:Conv
               if(request&&!controller.current(request))output={status:'cancelled',message:'The request was cancelled.'};
               else{const text=error instanceof Error?error.message:'The tool request failed. Please retry.';if(request)controller.finish(request,text);output={status:'failed',message:text}}
             }finally{
-              if(request&&controller.current(request))controller.finish(request);
+              if(request&&controller.current(request)&&controller.getSnapshot().pending)controller.finish(request);
               if(shouldSend&&active())send({type:'conversation.item.create',item:{type:'function_call_output',call_id:event.call_id,output:JSON.stringify(output)}});
               r.toolResponses.add(id);r.toolCounts.set(id,Math.max(0,(r.toolCounts.get(id)??1)-1));void continueResponse(id);
             }

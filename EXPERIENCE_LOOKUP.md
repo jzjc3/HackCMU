@@ -7,7 +7,7 @@ Implemented September 12, 2026. Text IFM and live Grok now share one read-only `
 - Actual lane repository: `C:\Users\jolen\.codex\worktrees\cf55\02_HackCMU2026\lookup-site`, branch `codex/find-experiences`.
 - Starting commit / rollback checkpoint: **`228a1c211a985a0ffa8b3cc2ba59712f27b7d301`**, published V8, tag `mind-travel-board-v8`.
 - The app initially opened the separate outer Python repository at `b048f13225f6d7e9846a86401a972c5af4f2af53`. No feature edits were made to that repository. The PM confirmed V8 in the nested Site repository and authorized this isolated Site worktree.
-- Original PM task `01a093fc-ddd4-75c1-9c19-e8c5f7d2dd83` owns integration and publication. The continuation fork is a review resource. No production merge or deployment is part of this lane. Existing V7/V8 rollback tags remain unchanged.
+- Core orchestration and Site ownership transferred to task `01a096ce-c4d8-7bb1-8c4d-da1cdedb3840`. It owns final integration and publication. Existing V7/V8/V9 rollback checkpoints remain unchanged.
 
 ## Contract and data boundary
 
@@ -76,3 +76,15 @@ The sole merge conflict was adjacent type declarations in `lib/conversation.ts`.
 Added integration regressions confirm that completed lookup evidence survives archive/reopen and browser-state hydration, while a pending IFM lookup cannot enter the new conversation or mutate the archive. The Grok regression confirms `openConversation` closes the old socket, drops its delayed lookup output, and a fresh session performs a fresh network lookup for the same keyword rather than reusing the old session cache.
 
 Combined lookup, conversation, voice, image/dictation, extraction, experience-flow, validation and storage tests pass, together with TypeScript, targeted ESLint and the production build. Prior live IFM/Grok reports remain the provider evidence; the merge does not change provider prompts, SQL or server dispatch, so paid provider evaluations were not repeated. Physical microphone and production browser/account testing remain with the release owner.
+
+Final integration review also keeps live-tool errors visible after settlement. Cleanup only finishes a still-pending request, so it cannot immediately erase the failure message set by the error handler. The controlled live adapter regression covers this case.
+
+The immediate rollback target for this release is the preserved V9 Sites archive `appgprj_6aa4e20d247481919c8e4504291cbfd8~appgver_fca2aa4c2ca081918694ba85dcf16ba9`, corresponding to Git tag `mind-travel-board-v9` and commit `4f457860608edd46fbc97605920710433f951cba`. Redeploy that existing archive without rebuilding or rewinding saved map data.
+
+## Release-owner browser verification
+
+The combined source passed lookup, conversation, voice, image and dictation regressions, TypeScript and the deployable build in the authoritative checkout. In the actual local browser, a fresh conversation used real IFM and the local authenticated database to retrieve an isolated synthetic “cobalt canoe” record. The answer correctly reported the sister and September 10, 2026 date. A follow-up answered from those retrieved facts. A second literal phrase with no matching record produced an honest no-match answer. All three turns left zero draft cards and no Save action, and the map count stayed unchanged. Completed lookup history survived a development preview refresh.
+
+The local world was backed up before adding the single fixture. Cleanup detected a concurrent image-test change, so it removed only the lookup fixture and verified that the remaining document exactly matched the concurrent state (excluding the normal revision increment). No production map was changed. The real Grok evidence remains the lane's synthetic realtime text-input tests; a physical microphone acceptance test is still outstanding.
+
+The user approved photo previews as the default map hover mode for this release. The existing keyword mode remains available in developer controls. The image test verified upload, Save, refresh and photo hover using a sample image; it also correctly rejected a JPEG whose filename claimed PNG. No other V9 presentation change is included.
