@@ -12,6 +12,10 @@ export function appendUniqueMemories(world: World, memories: Memory[]): World {
   return {...world, memories: [...world.memories, ...memories.filter((memory) => !existing.has(memory.id))]};
 }
 
+export function clearMapMemories(world: World): World {
+  return {...world, memories: []};
+}
+
 export function regionsForDimensions(world: World, ids: string[]): Region[] {
   const selected = new Set(ids);
   return world.dims.filter((dimension) => dimension.active && selected.has(dimension.id)).map((dimension) => dimension.region);

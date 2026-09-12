@@ -24,4 +24,10 @@ assert.deepEqual(flow.regionsForDimensions(saved,['health','relationships']),['S
 assert.equal(saved.memories.filter(memory=>memory.dims.includes('career')).length,1,'career memory reaches its map category');
 assert.equal(saved.memories.filter(memory=>memory.dims.includes('health')).length,1,'multi-category memory reaches health');
 assert.equal(saved.memories.filter(memory=>memory.dims.includes('relationships')).length,1,'multi-category memory reaches relationships');
-console.log('Experience flow checks passed: proposal review, category preservation, idempotent save, and map-region routing.');
+const cleared=flow.clearMapMemories(saved);
+assert.equal(cleared.memories.length,0,'clear map removes every saved experience');
+assert.deepEqual(cleared.dims,saved.dims,'clear map preserves dimensions and their configuration');
+assert.equal(cleared.setupDone,true,'clear map preserves onboarding state');
+assert.deepEqual(cleared.overrides,saved.overrides,'clear map preserves appearance overrides');
+assert.equal(saved.memories.length,2,'clear map does not mutate the prior world value');
+console.log('Experience flow checks passed: proposal review, category preservation, idempotent save, map-region routing, and clear-map preservation.');
