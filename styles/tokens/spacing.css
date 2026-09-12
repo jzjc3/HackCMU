@@ -1,0 +1,9 @@
+:root{
+--space-2:2px;--space-6:6px;--space-8:8px;--space-10:10px;--space-12:12px;--space-16:16px;--space-20:20px;--space-22:22px;--space-24:24px;--space-28:28px;--space-32:32px;--space-36:36px;--space-40:40px;--space-56:56px;--space-60:60px;--space-64:64px;--space-80:80px;
+--section-gap:var(--space-80);--container-max:1440px;--container-pad:var(--space-40);
+--radius-xs:4px;--radius-sm:8px;--radius-md:16px;--radius-lg:22px;--radius-xl:30px;--radius-pill:32px;--radius-full:9999px;
+--announcement-height:36px;
+--motion-fast:150ms; /* @kind other */
+--motion-base:240ms; /* @kind other */
+--ease-standard:cubic-bezier(.2,0,0,1); /* @kind other */
+}

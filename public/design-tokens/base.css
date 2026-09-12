@@ -1,0 +1,1 @@
+html{-webkit-font-smoothing:antialiased}body{margin:0;font:var(--text-body);color:var(--text-primary);background:var(--surface-canvas)}a{color:var(--text-primary);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}a:hover{color:var(--text-strong);text-decoration-thickness:2px}:focus-visible{outline:2px solid var(--ring-focus);outline-offset:2px}

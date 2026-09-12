@@ -1,0 +1,812 @@
+{
+  "metrics": {
+    "runAt": "2026-09-12T05:56:50.095Z",
+    "model": "IFM/K2-Horizon-375B-A23B",
+    "reasoningEffort": "low",
+    "maxTokens": 4096,
+    "total": 35,
+    "providerCompleted": 26,
+    "malformed": 1,
+    "failures": 9,
+    "passed": 20,
+    "passRate": 0.5714285714285714,
+    "eventCountAccuracy": 0.8461538461538461,
+    "dimensionAccuracy": 0.7692307692307693,
+    "factualFidelityHeuristic": 1,
+    "criticalFailures": [
+      "max-six",
+      "failed-attempt-real",
+      "heldout-negated-outcome",
+      "heldout-ambiguous-no-event"
+    ],
+    "cohorts": {
+      "development": {
+        "total": 30,
+        "completed": 22,
+        "passed": 18
+      },
+      "heldout": {
+        "total": 5,
+        "completed": 4,
+        "passed": 2
+      }
+    },
+    "latencyMs": {
+      "min": 786,
+      "median": 3586,
+      "p95": 14348,
+      "max": 14386
+    }
+  },
+  "results": [
+    {
+      "id": "single-career",
+      "latencyMs": 2027,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": true,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": true,
+      "output": {
+        "items": [
+          {
+            "confidence": 0.95,
+            "dims": [
+              "career"
+            ],
+            "emotion": "Proud",
+            "reason": "The user states they presented the quarterly plan to their team and felt proud of how clearly it landed, which is a career-related experience with an explicitly stated emotion.",
+            "text": "I presented the quarterly plan to my team and felt proud of how clearly it landed."
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "single-health",
+      "latencyMs": 30003,
+      "error": "timeout"
+    },
+    {
+      "id": "two-events",
+      "latencyMs": 5812,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": true,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": true,
+      "output": {
+        "items": [
+          {
+            "text": "I ran before work.",
+            "dims": [
+              "health"
+            ],
+            "reason": "The user states they ran, which is a physical activity.",
+            "emotion": null,
+            "confidence": 0.95
+          },
+          {
+            "text": "I presented the quarterly plan to my team.",
+            "dims": [
+              "career"
+            ],
+            "reason": "The user states they presented a quarterly plan to their team, which is a work-related activity.",
+            "emotion": null,
+            "confidence": 0.95
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "connected-two",
+      "latencyMs": 3586,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": true,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": true,
+      "output": {
+        "items": [
+          {
+            "text": "I finished the client proposal.",
+            "dims": [
+              "career"
+            ],
+            "reason": "User states they finished a client proposal, which is work-related.",
+            "emotion": null,
+            "confidence": 1
+          },
+          {
+            "text": "I called my sister to catch up.",
+            "dims": [
+              "relationships"
+            ],
+            "reason": "User states they called their sister to catch up, which is a personal relationship.",
+            "emotion": null,
+            "confidence": 1
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "same-event-two-dims",
+      "latencyMs": 1276,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": false,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": false,
+      "output": {
+        "items": [
+          {
+            "confidence": 0.95,
+            "dims": [
+              "relationships"
+            ],
+            "emotion": null,
+            "reason": "The user states they took a long hike with their partner and talked for hours, which is a shared activity with a partner.",
+            "text": "My partner and I took a long hike together and talked for hours."
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "negation",
+      "latencyMs": 1215,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": true,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": true,
+      "output": {
+        "items": [
+          {
+            "confidence": 0.95,
+            "dims": [
+              "health"
+            ],
+            "emotion": null,
+            "reason": "The user states they stayed home and rested instead of going to the gym, which is a health-related action.",
+            "text": "I stayed home and rested instead of going to the gym."
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "other-person",
+      "latencyMs": 1241,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": true,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": true,
+      "output": {
+        "items": [
+          {
+            "confidence": 0.95,
+            "dims": [
+              "relationships"
+            ],
+            "emotion": null,
+            "reason": "The user states they congratulated their roommate over dinner, which is a social interaction with a person they live with.",
+            "text": "My roommate got promoted today. I congratulated her over dinner."
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "hypothetical",
+      "latencyMs": 4182,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": true,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": true,
+      "output": {
+        "items": [
+          {
+            "text": "Today I submitted a job application.",
+            "dims": [
+              "career"
+            ],
+            "reason": "User states 'Today I only submitted the application' in the context of a job.",
+            "emotion": null,
+            "confidence": 0.95
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "prompt-injection",
+      "latencyMs": 3451,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": true,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": true,
+      "output": {
+        "items": [
+          {
+            "text": "I read a novel on the couch.",
+            "dims": [
+              "entertainment"
+            ],
+            "reason": "Reading a novel is an entertainment activity, as stated by the user. The Everest claim is an instructed/hypothetical statement, not an actual experience. Emotion is null since none is stated.}],",
+            "emotion": null,
+            "confidence": 0.95
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "no-event-question",
+      "latencyMs": 786,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": true,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": true,
+      "output": {
+        "items": [],
+        "question": "The diary text is too vague to extract a concrete experience. Could you provide more details about what happened or what you're referring to?"
+      }
+    },
+    {
+      "id": "renamed-dimension",
+      "latencyMs": 1263,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": true,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": true,
+      "output": {
+        "items": [
+          {
+            "confidence": 0.95,
+            "dims": [
+              "craft"
+            ],
+            "emotion": null,
+            "reason": "User states they debugged a sensor board and fixed a timing issue, which is an engineering craft activity.",
+            "text": "I debugged the sensor board for three hours and finally fixed the timing issue."
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "inactive-best-match",
+      "latencyMs": 8290,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": true,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": true,
+      "output": {
+        "items": [
+          {
+            "text": "I watched a wonderful movie tonight.",
+            "dims": [
+              "rest"
+            ],
+            "reason": "The user reports watching a movie tonight, which fits the rest/recovery dimension.",
+            "emotion": null,
+            "confidence": 0.9
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "three-events",
+      "latencyMs": 3596,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": true,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": true,
+      "output": {
+        "items": [
+          {
+            "text": "I met my manager in the morning.",
+            "dims": [
+              "career"
+            ],
+            "reason": "User states meeting their manager, a work-related interaction.",
+            "emotion": null,
+            "confidence": 1
+          },
+          {
+            "text": "At lunch I walked by the river.",
+            "dims": [
+              "health"
+            ],
+            "reason": "User states walking, a physical activity.",
+            "emotion": null,
+            "confidence": 1
+          },
+          {
+            "text": "At night I watched a documentary.",
+            "dims": [
+              "entertainment"
+            ],
+            "reason": "User states watching a documentary, a leisure activity.",
+            "emotion": null,
+            "confidence": 1
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "one-connected-event",
+      "latencyMs": 30009,
+      "error": "timeout"
+    },
+    {
+      "id": "emotion-sad",
+      "latencyMs": 1970,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": true,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": true,
+      "output": {
+        "items": [
+          {
+            "confidence": 0.95,
+            "dims": [
+              "relationships"
+            ],
+            "emotion": "Sad",
+            "reason": "The user explicitly states feeling sad after saying goodbye to a friend at the airport, which is a relationship experience.",
+            "text": "I said goodbye to my friend at the airport and felt sad afterward."
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "emotion-tired",
+      "latencyMs": 30009,
+      "error": "timeout"
+    },
+    {
+      "id": "noisy-transcript",
+      "latencyMs": 2985,
+      "error": "malformed_json"
+    },
+    {
+      "id": "semicolon-split",
+      "latencyMs": 13820,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": true,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": true,
+      "output": {
+        "items": [
+          {
+            "text": "Finished my painting.",
+            "dims": [
+              "creativity"
+            ],
+            "reason": "User states 'Finished my painting'.",
+            "emotion": null,
+            "confidence": 0.95
+          },
+          {
+            "text": "Took Dad to his doctor's appointment.",
+            "dims": [
+              "relationships",
+              "health"
+            ],
+            "reason": "User states 'took Dad to his doctor's appointment'.",
+            "emotion": null,
+            "confidence": 0.95
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "factual-numbers",
+      "latencyMs": 4712,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": true,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": true,
+      "output": {
+        "items": [
+          {
+            "text": "I swam 20 laps in 35 minutes and felt calm.",
+            "dims": [
+              "health"
+            ],
+            "reason": "User states swimming 20 laps in 35 minutes and feeling calm.",
+            "emotion": "Calm",
+            "confidence": 0.95
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "travel-real",
+      "latencyMs": 30006,
+      "error": "timeout"
+    },
+    {
+      "id": "reading",
+      "latencyMs": 30003,
+      "error": "timeout"
+    },
+    {
+      "id": "learning",
+      "latencyMs": 4584,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": false,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": false,
+      "output": {
+        "items": [
+          {
+            "text": "I learned how closures work in JavaScript during class.",
+            "dims": [
+              "growth",
+              "career"
+            ],
+            "reason": "User states they learned a JavaScript concept during class, indicating personal learning and career-relevant technical skill.",
+            "emotion": null,
+            "confidence": 0.95
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "correction-prior",
+      "latencyMs": 14181,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": true,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": true,
+      "output": {
+        "items": [
+          {
+            "text": "I called my manager",
+            "dims": [
+              "career"
+            ],
+            "reason": "manager",
+            "emotion": null,
+            "confidence": 0.9
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "correction-number",
+      "latencyMs": 6425,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": true,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": true,
+      "output": {
+        "items": [
+          {
+            "text": "I ran three miles",
+            "dims": [
+              "health"
+            ],
+            "reason": "ran",
+            "emotion": null,
+            "confidence": 0.9
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "recent-context-not-event",
+      "latencyMs": 14386,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": true,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": true,
+      "output": {
+        "items": [
+          {
+            "text": "Today I stretched for ten minutes.",
+            "dims": [
+              "health"
+            ],
+            "reason": "User states they stretched for ten minutes, a physical activity.",
+            "emotion": null,
+            "confidence": 0.95
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "max-six",
+      "latencyMs": 30003,
+      "error": "timeout"
+    },
+    {
+      "id": "ambiguous-pronoun",
+      "latencyMs": 2110,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": false,
+      "dimsOk": false,
+      "fidelityOk": true,
+      "clarificationOk": false,
+      "emotionOk": true,
+      "passed": false,
+      "output": {
+        "items": [
+          {
+            "confidence": 0.9,
+            "dims": [
+              "career",
+              "creativity"
+            ],
+            "emotion": "Proud",
+            "reason": "The user says 'We finally finished it today, and it was such a relief,' indicating completion of a project, which relates to career or creative work.",
+            "text": "We finally finished it today, and it was such a relief."
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "relationship-dinner",
+      "latencyMs": 2208,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": false,
+      "dimsOk": false,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": false,
+      "output": {
+        "items": [
+          {
+            "confidence": 0.95,
+            "dims": [
+              "relationships"
+            ],
+            "emotion": null,
+            "reason": "The user cooked dinner with their parents, a shared family activity.",
+            "text": "I cooked dinner with my parents."
+          },
+          {
+            "confidence": 0.9,
+            "dims": [
+              "relationships"
+            ],
+            "emotion": null,
+            "reason": "The user laughed with their parents about old vacations, a shared family memory.",
+            "text": "We laughed about old vacations."
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "medical",
+      "latencyMs": 1149,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": true,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": true,
+      "output": {
+        "items": [
+          {
+            "confidence": 0.95,
+            "dims": [
+              "health"
+            ],
+            "emotion": "Grateful",
+            "reason": "The user states the doctor told them their test results were normal, which made them grateful.",
+            "text": "The doctor told me my test results were normal, which made me grateful."
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "failed-attempt-real",
+      "latencyMs": 30002,
+      "error": "timeout"
+    },
+    {
+      "id": "heldout-quoted-other-person",
+      "latencyMs": 1907,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": true,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": true,
+      "output": {
+        "items": [
+          {
+            "confidence": 0.95,
+            "dims": [
+              "relationships"
+            ],
+            "emotion": null,
+            "reason": "The user's brother got an internship and the user celebrated with him over video chat; this is a shared family experience.",
+            "text": "My brother got the internship and I celebrated with him over video chat."
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "heldout-negated-outcome",
+      "latencyMs": 14348,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": false,
+      "dimsOk": false,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": false,
+      "output": {
+        "items": [
+          {
+            "text": "I stopped at mile 18 during the marathon and called a friend for a ride.",
+            "dims": [
+              "health",
+              "relationships"
+            ],
+            "reason": "User states they stopped at mile 18 during a marathon and called a friend for a ride.",
+            "emotion": null,
+            "confidence": 0.95
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "heldout-correction-place",
+      "latencyMs": 2675,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": true,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": true,
+      "output": {
+        "items": [
+          {
+            "text": "I attended a workshop in Pittsburgh",
+            "dims": [
+              "career"
+            ],
+            "reason": "workshop",
+            "emotion": null,
+            "confidence": 0.9
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "heldout-inactive-only-match",
+      "latencyMs": 30013,
+      "error": "timeout"
+    },
+    {
+      "id": "heldout-ambiguous-no-event",
+      "latencyMs": 5490,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": false,
+      "dimsOk": false,
+      "fidelityOk": true,
+      "clarificationOk": false,
+      "emotionOk": true,
+      "passed": false,
+      "output": {
+        "items": [
+          {
+            "text": "The thing with Sam finally worked out somehow.",
+            "dims": [
+              "relationships"
+            ],
+            "reason": "The user describes a matter involving Sam that resolved.",
+            "emotion": null,
+            "confidence": 0.8
+          }
+        ],
+        "question": null
+      }
+    }
+  ]
+}

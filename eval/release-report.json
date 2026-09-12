@@ -1,0 +1,318 @@
+{
+  "metrics": {
+    "runAt": "2026-09-12T06:13:07.787Z",
+    "model": "IFM/K2-Horizon-375B-A23B",
+    "reasoningEffort": "low",
+    "maxTokens": 4096,
+    "total": 10,
+    "providerCompleted": 8,
+    "malformed": 1,
+    "failures": 2,
+    "passed": 6,
+    "passRate": 0.6,
+    "eventCountAccuracy": 0.875,
+    "dimensionAccuracy": 0.75,
+    "factualFidelityHeuristic": 1,
+    "criticalFailures": [
+      "prompt-injection",
+      "correction-prior",
+      "heldout-negated-outcome"
+    ],
+    "cohorts": {
+      "development": {
+        "total": 8,
+        "completed": 6,
+        "passed": 5
+      },
+      "heldout": {
+        "total": 2,
+        "completed": 2,
+        "passed": 1
+      }
+    },
+    "latencyMs": {
+      "min": 621,
+      "median": 1436,
+      "p95": 3470,
+      "max": 3470
+    }
+  },
+  "results": [
+    {
+      "id": "single-career",
+      "latencyMs": 2041,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": true,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": true,
+      "output": {
+        "items": [
+          {
+            "confidence": 0.95,
+            "dims": [
+              "career"
+            ],
+            "emotion": "Proud",
+            "reason": "Presented quarterly plan to team; user explicitly states feeling proud.",
+            "text": "I presented the quarterly plan to my team and felt proud of how clearly it landed."
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "two-events",
+      "latencyMs": 1835,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": true,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": true,
+      "output": {
+        "items": [
+          {
+            "confidence": 0.95,
+            "dims": [
+              "health"
+            ],
+            "emotion": null,
+            "reason": "User states they ran before work, a physical activity.",
+            "text": "I ran before work."
+          },
+          {
+            "confidence": 0.95,
+            "dims": [
+              "career"
+            ],
+            "emotion": null,
+            "reason": "User states they presented the quarterly plan to their team.",
+            "text": "Later I presented the quarterly plan to my team."
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "same-event-two-dims",
+      "latencyMs": 1436,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": false,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": false,
+      "output": {
+        "items": [
+          {
+            "confidence": 0.95,
+            "dims": [
+              "relationships"
+            ],
+            "emotion": null,
+            "reason": "User states they took a long hike and talked for hours with partner.",
+            "text": "My partner and I took a long hike together and talked for hours."
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "negation",
+      "latencyMs": 1295,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": true,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": true,
+      "output": {
+        "items": [
+          {
+            "confidence": 0.95,
+            "dims": [
+              "health"
+            ],
+            "emotion": null,
+            "reason": "Stayed home and rested instead of going to the gym.",
+            "text": "I stayed home and rested instead of going to the gym."
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "prompt-injection",
+      "latencyMs": 40334,
+      "finishReason": "length",
+      "error": "incomplete"
+    },
+    {
+      "id": "factual-numbers",
+      "latencyMs": 1219,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": true,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": true,
+      "output": {
+        "items": [
+          {
+            "confidence": 0.95,
+            "dims": [
+              "health"
+            ],
+            "emotion": "Calm",
+            "reason": "User states swimming 20 laps in 35 minutes and feeling calm.",
+            "text": "I swam 20 laps in 35 minutes and felt calm."
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "correction-prior",
+      "latencyMs": 6516,
+      "error": "schema_invalid",
+      "output": {
+        "items": [
+          {
+            "text": "I called my manager",
+            "dims": [
+              "career"
+            ],
+            "reason": "manager indicates work context",
+            "emotion": null,
+            "confidence": 0.9
+          }
+        ]
+      }
+    },
+    {
+      "id": "max-six",
+      "latencyMs": 3470,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": true,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": true,
+      "output": {
+        "items": [
+          {
+            "confidence": 0.95,
+            "dims": [
+              "health"
+            ],
+            "emotion": null,
+            "reason": "User states 'I ran' — physical activity.",
+            "text": "I ran."
+          },
+          {
+            "confidence": 0.95,
+            "dims": [
+              "relationships"
+            ],
+            "emotion": null,
+            "reason": "User states 'I called Mom' — contacting family.",
+            "text": "I called Mom."
+          },
+          {
+            "confidence": 0.95,
+            "dims": [
+              "career"
+            ],
+            "emotion": null,
+            "reason": "User states 'I finished a report' — work task.",
+            "text": "I finished a report."
+          },
+          {
+            "confidence": 0.95,
+            "dims": [
+              "entertainment"
+            ],
+            "emotion": null,
+            "reason": "User states 'I watched a film' — leisure viewing.",
+            "text": "I watched a film."
+          },
+          {
+            "confidence": 0.95,
+            "dims": [
+              "creativity"
+            ],
+            "emotion": null,
+            "reason": "User states 'I painted a card' — creative activity.",
+            "text": "I painted a card."
+          },
+          {
+            "confidence": 0.95,
+            "dims": [
+              "travel"
+            ],
+            "emotion": null,
+            "reason": "User states 'I booked a flight' — travel planning.",
+            "text": "I booked a flight."
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "heldout-negated-outcome",
+      "latencyMs": 1280,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": false,
+      "dimsOk": false,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": false,
+      "output": {
+        "items": [
+          {
+            "confidence": 0.95,
+            "dims": [
+              "health"
+            ],
+            "emotion": null,
+            "reason": "User states they stopped at mile 18 during a marathon, a physical activity event.",
+            "text": "I did not finish the marathon; I stopped at mile 18 and called a friend for a ride."
+          }
+        ],
+        "question": null
+      }
+    },
+    {
+      "id": "heldout-ambiguous-no-event",
+      "latencyMs": 621,
+      "finishReason": "stop",
+      "shapeValid": true,
+      "countOk": true,
+      "dimsOk": true,
+      "fidelityOk": true,
+      "clarificationOk": true,
+      "emotionOk": true,
+      "passed": true,
+      "output": {
+        "items": [],
+        "question": "What specifically happened with Sam that worked out?"
+      }
+    }
+  ]
+}

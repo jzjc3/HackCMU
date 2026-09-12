@@ -1,0 +1,20 @@
+@import "@fontsource/space-grotesk/400.css";
+@import "@fontsource/space-grotesk/500.css";
+@import "@fontsource/inter-tight/400.css";
+@import "@fontsource/inter-tight/500.css";
+@import "@fontsource/jetbrains-mono/400.css";
+@import "../styles/tokens/colors.css";
+@import "../styles/tokens/typography.css";
+@import "../styles/tokens/spacing.css";
+@import "../styles/tokens/base.css";
+body{margin:0;overflow:hidden}
+.mt-region:focus-visible .coast{stroke:#4c6ee6;stroke-width:2.5px}
+.mt-region:hover .coast{stroke-width:1.6px}
+.mt-lvl{animation:mt-rise .5s ease-out both}
+.mt-reduced .mt-lvl{animation:none}
+@keyframes mt-rise{from{opacity:0}to{opacity:1}}
+.mt-hi .mt-hi-ring{animation:mt-pulse 1.2s ease-out 1}
+.mt-hi.mt-static .mt-hi-ring,.mt-reduced .mt-hi .mt-hi-ring{animation:none;stroke-width:3px;stroke-opacity:.9}
+@keyframes mt-pulse{0%{stroke-width:0;stroke-opacity:1}40%{stroke-width:6px;stroke-opacity:.9}100%{stroke-width:0;stroke-opacity:0}}
+.mt-reduced *{transition:none!important}
+input,select,textarea,button{font-family:var(--font-body)}

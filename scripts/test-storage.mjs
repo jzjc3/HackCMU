@@ -1,0 +1,43 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {DatabaseSync} from 'node:sqlite';
+import ts from 'typescript';
+
+const sql=new DatabaseSync(':memory:');
+sql.exec(await readFile(new URL('../drizzle/0000_premium_karma.sql',import.meta.url),'utf8'));
+const statements=query=>{
+ let values=[];
+ return {bind(...args){values=args;return this},async first(){return sql.prepare(query).get(...values)??null},async all(){return {results:sql.prepare(query).all(...values)}},async run(){return {meta:{changes:Number(sql.prepare(query).run(...values).changes)}}}};
+};
+const objects=new Map();
+globalThis.__storageTestEnv={DB:{prepare:statements,async batch(items){return Promise.all(items.map(x=>x.run()))}},BUCKET:{async put(key,bytes){objects.set(key,bytes)},async get(key){return objects.has(key)?{body:objects.get(key)}:null},async delete(keys){for(const key of Array.isArray(keys)?keys:[keys])objects.delete(key)}}};
+const compile=source=>ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}}).outputText;
+const url=source=>`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`;
+const moduleText=async name=>compile(await readFile(new URL(`../lib/server/${name}.ts`,import.meta.url),'utf8'));
+const typesUrl=url(await moduleText('world-types'));
+const validationUrl=url((await moduleText('validation')).replace('"./world-types"',JSON.stringify(typesUrl)));
+const storageUrl=url((await moduleText('storage')).replace('import { env } from "cloudflare:workers";','const env=globalThis.__storageTestEnv;').replace('"./world-types"',JSON.stringify(typesUrl)).replace('"./validation"',JSON.stringify(validationUrl)));
+const storage=await import(storageUrl);
+const {revision,...world}=await storage.loadWorld('alice');
+assert.equal(revision,0);
+const saved=await storage.saveWorld('alice',world,0);
+assert.equal(saved.world.revision,1);
+assert.equal((await storage.saveWorld('alice',world,0)).conflict,false,'lost response retry is idempotent');
+const changed={...world,setupDone:true};
+assert.equal((await storage.saveWorld('alice',changed,0)).conflict,true,'stale session cannot overwrite');
+const races=await Promise.all([storage.saveWorld('alice',changed,1),storage.saveWorld('alice',{...world,lastOpened:'different'},1)]);
+assert.equal(races.filter(result=>!result.conflict).length,1,'only one concurrent revision wins');
+assert.equal((await storage.loadWorld('bob')).revision,0,'worlds isolated by identity');
+const png=new Uint8Array([137,80,78,71,13,10,26,10]);
+const image=await storage.storeImage('alice',png,'image/png','test.png','upload','request-123');
+assert.equal(await storage.findAttachment('bob',image.id),null);
+assert.equal((await storage.storeImage('alice',png,'image/png','test.png','upload','request-123')).id,image.id);
+assert.equal(objects.size,1,'retry does not duplicate blobs');
+assert.equal(await storage.deleteOwnedImage('bob',image.id),false);
+await storage.deleteWorldAndFiles('alice');
+assert.equal(objects.size,0);
+assert.equal((await storage.ownedAttachmentIds('alice')).size,0);
+assert.equal((await storage.loadWorld('alice')).revision,0);
+sql.close();
+console.log('Storage checks passed: SQLite CAS, lost-response retry, concurrent writes, user isolation, attachment deduplication and deletion.');
+

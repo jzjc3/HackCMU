@@ -1,0 +1,31 @@
+# Mind Travel
+
+Mind Travel turns a person's real experiences into a personal world map. The frontend is a faithful TypeScript production port of the locked design in `../Mind Travel Design System/`.
+
+The app runs as a private ChatGPT Site. ChatGPT supplies the signed-in identity, D1 stores one revision-controlled world per user, and R2 stores private image attachments. IFM extracts reviewable experience proposals. xAI provides speech-to-text, optional realtime voice, and user-requested illustrations. AI output never writes directly: the user reviews and explicitly saves every proposal.
+
+## Local development on Windows
+
+Use Node.js 22.13 or newer. Put `IFM_API_KEY` and `XAI_API_KEY` in an ignored `.dev.vars` file, then run:
+
+```powershell
+node .\node_modules\drizzle-kit\bin.cjs generate
+node --import .\scripts\sites-env.mjs .\node_modules\wrangler\bin\wrangler.js d1 execute DB --local --config .\dist\server\wrangler.json --persist-to .\.wrangler\state --file .\drizzle\0000_premium_karma.sql
+node .\scripts\run-framework.mjs dev
+```
+
+The portable preview signs in as the documented local Sites test user. Production authentication is handled by ChatGPT Sites.
+
+## Verification
+
+```powershell
+node .\node_modules\typescript\bin\tsc --noEmit
+node .\scripts\test-validation.mjs
+node .\scripts\test-storage.mjs
+node .\scripts\evaluate-ifm.mjs --release
+node .\scripts\run-framework.mjs build
+```
+
+The IFM evaluation writes sanitized results to `eval/release-report.md` and `eval/release-report.json`; credentials and request headers are never recorded. `scripts/smoke-provider-access.mjs` checks IFM and xAI access and validates that xAI can issue an ephemeral realtime credential without printing it.
+
+See [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) for architecture, product contracts and release criteria.
