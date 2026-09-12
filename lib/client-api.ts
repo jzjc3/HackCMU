@@ -1,5 +1,7 @@
 import type { Attachment, Dimension, ExtractResponse, VoiceTokenResponse, World } from './types';
 import type {ConversationContext,ConversationResult} from './conversation';
+import type {FindExperiencesResult} from './experience-lookup';
+export type {FindExperiencesResult} from './experience-lookup';
 
 export class ClientApiError extends Error {
   constructor(message:string, public status:number, public code:string, public retryable:boolean){super(message);this.name='ClientApiError'}
@@ -18,6 +20,7 @@ async function request<T>(url:string, init?:RequestInit):Promise<T>{
 }
 export const clientApi={
   converse:(context:ConversationContext,intent:'chat'|'draft',signal?:AbortSignal)=>request<ConversationResult>('/api/conversation',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({context,intent}),signal}),
+  findExperiences:(query:string,limit=5,signal?:AbortSignal)=>request<FindExperiencesResult>('/api/experiences/find',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({query,limit}),signal}),
   getWorld:()=>request<{world:World}>('/api/world'),
   getAttachment:(id:string)=>request<{attachment:Attachment}>(`/api/attachments/${encodeURIComponent(id)}?metadata=1`),
   putWorld:(world:World,expectedRevision:number|undefined)=>request<{world:World}>('/api/world',{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify({world,expectedRevision})}),

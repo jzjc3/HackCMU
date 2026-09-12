@@ -13,6 +13,7 @@
     "test:extraction": "node scripts/test-extraction-core.mjs",
     "test:experience-flow": "node scripts/test-experience-flow.mjs",
     "test:voice": "node scripts/test-unified-voice.mjs",
+    "test:lookup": "node scripts/test-experience-lookup.mjs && node scripts/test-conversation-lookup.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate",
     "test:conversation": "node scripts/test-conversation.mjs && node scripts/test-conversation-server.mjs",

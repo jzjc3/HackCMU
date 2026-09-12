@@ -1,0 +1,68 @@
+{
+  "date": "2026-09-12T18:47:57.016Z",
+  "provider": "live Grok Realtime (grok-voice-think-fast-2.0)",
+  "input": "synthetic text injection; microphone and audio capture not exercised",
+  "storage": "synthetic read-only lookup callback; authentication and database lookup tested separately",
+  "results": [
+    {
+      "name": "english-recall",
+      "calls": [
+        {
+          "name": "find_experiences",
+          "arguments": "{\"query\":\"Zephyr Lantern\"}"
+        }
+      ],
+      "counts": {
+        "session.created": 1,
+        "conversation.created": 1,
+        "ping": 1,
+        "session.updated": 1,
+        "conversation.item.added": 5,
+        "response.created": 2,
+        "response.output_item.added": 3,
+        "response.content_part.added": 2,
+        "response.output_audio.delta": 17,
+        "response.output_audio_transcript.delta": 5,
+        "response.output_audio_transcript.done": 2,
+        "response.content_part.done": 2,
+        "response.output_audio.done": 2,
+        "response.output_item.done": 3,
+        "response.function_call_arguments.delta": 1,
+        "response.function_call_arguments.done": 1,
+        "response.done": 2
+      },
+      "transcript": "I'll search for that now.Yes, I found your saved Zephyr Lantern experience. You built a copper compass with your cousin Mira at the Zephyr Lantern workshop in Reykjavík.",
+      "passed": true
+    },
+    {
+      "name": "no-match",
+      "calls": [
+        {
+          "name": "find_experiences",
+          "arguments": "{\"query\":\"Violet Moon Orchard\"}"
+        }
+      ],
+      "counts": {
+        "session.created": 1,
+        "conversation.created": 1,
+        "ping": 1,
+        "session.updated": 1,
+        "conversation.item.added": 5,
+        "response.created": 2,
+        "response.output_item.added": 3,
+        "response.content_part.added": 2,
+        "response.output_audio.delta": 11,
+        "response.output_audio_transcript.delta": 3,
+        "response.output_audio_transcript.done": 2,
+        "response.content_part.done": 2,
+        "response.output_audio.done": 2,
+        "response.output_item.done": 3,
+        "response.function_call_arguments.delta": 1,
+        "response.function_call_arguments.done": 1,
+        "response.done": 2
+      },
+      "transcript": "I'll search for that now.No saved match was found for the Violet Moon Orchard.",
+      "passed": true
+    }
+  ]
+}

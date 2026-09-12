@@ -12,5 +12,5 @@ queue=['private thought {not json}</ifm|think>'+good];calls=0;assert.equal((awai
 const bad=JSON.stringify({reply:'Ready.',changes:[{cardId:'someone-else',proposal:p}]});queue=[bad,bad];await assert.rejects(converse(world,context,'chat'),/invalid draft/);
 const invalidDate=JSON.stringify({reply:'Ready.',changes:[{cardId:null,proposal:{...p,date:'2026-02-30'}}]});queue=[invalidDate,invalidDate];await assert.rejects(converse(world,context,'chat'),/invalid draft/);
 queue=['prose','prose'];await assert.rejects(converse(world,context,'chat'),/unreadable/);
-const controller=new AbortController();controller.abort();queue=[new Error('aborted')];calls=0;await assert.rejects(converse(world,context,'chat',controller.signal));assert.equal(calls,1);
+const controller=new AbortController();controller.abort();queue=[new Error('aborted')];calls=0;await assert.rejects(converse(world,context,'chat',controller.signal));assert.equal(calls,0);
 console.log('Conversation server passed: editable-card schema, malformed response retry, reasoning isolation, unknown-card/date rejection and abort without retry.');

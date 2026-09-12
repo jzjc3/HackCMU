@@ -1,5 +1,7 @@
 # Unified conversation release
 
+The saved-experience lookup increment is documented in [EXPERIENCE_LOOKUP.md](./EXPERIENCE_LOOKUP.md), including its shared tool contract, provider handoff, cancellation checks, and integration notes.
+
 Implemented September 12, 2026. The application owns one conversation controller per signed-in user, shared by IFM text chat and Grok live voice. Closing the capture panel does not replace that controller. The original map design and category definitions remain unchanged; voice has the accepted integrated live pane.
 
 ## Behavior and ownership

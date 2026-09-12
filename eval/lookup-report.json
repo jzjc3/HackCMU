@@ -1,0 +1,213 @@
+{
+  "date": "2026-09-12T18:50:12.713Z",
+  "provider": "live IFM",
+  "storage": "synthetic read-only callback; SQL and auth tested separately",
+  "results": [
+    {
+      "name": "retrieve-single-before-recall",
+      "passed": true,
+      "calls": [
+        {
+          "query": "Maya",
+          "limit": 5
+        }
+      ],
+      "result": {
+        "reply": "I found one saved experience mentioning Maya: on 2026-08-03, you walked on Coral Beach with Maya and watched the sunrise.",
+        "changes": [],
+        "lookups": [
+          {
+            "query": "Maya",
+            "results": [
+              {
+                "id": "saved-beach",
+                "text": "I walked on Coral Beach with Maya and watched the sunrise.",
+                "textTruncated": false,
+                "categories": [
+                  {
+                    "id": "relationships",
+                    "name": "Relationships"
+                  }
+                ],
+                "date": "2026-08-03",
+                "created": 1
+              }
+            ],
+            "hasMore": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "multiple-matches",
+      "passed": true,
+      "calls": [
+        {
+          "query": "Coral Beach",
+          "limit": 10
+        }
+      ],
+      "result": {
+        "reply": "I found two saved Coral Beach visits. On August 3, 2026, you walked on Coral Beach with Maya and watched the sunrise. On August 6, 2026, you collected shells on Coral Beach with your brother.",
+        "changes": [],
+        "lookups": [
+          {
+            "query": "Coral Beach",
+            "results": [
+              {
+                "id": "saved-beach",
+                "text": "I walked on Coral Beach with Maya and watched the sunrise.",
+                "textTruncated": false,
+                "categories": [
+                  {
+                    "id": "relationships",
+                    "name": "Relationships"
+                  }
+                ],
+                "date": "2026-08-03",
+                "created": 1
+              },
+              {
+                "id": "saved-beach-two",
+                "text": "I collected shells on Coral Beach with my brother.",
+                "textTruncated": false,
+                "categories": [
+                  {
+                    "id": "relationships",
+                    "name": "Relationships"
+                  }
+                ],
+                "date": "2026-08-06",
+                "created": 2
+              }
+            ],
+            "hasMore": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "no-match",
+      "passed": true,
+      "calls": [
+        {
+          "query": "Neptune",
+          "limit": 5
+        }
+      ],
+      "result": {
+        "reply": "I searched your saved experiences for \"Neptune\" and found no matches. Would you like to try a different keyword, or can you share more details about the moonwalking experience so I can help?",
+        "changes": [],
+        "lookups": [
+          {
+            "query": "Neptune",
+            "results": [],
+            "hasMore": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "Chinese-recall",
+      "passed": true,
+      "calls": [
+        {
+          "query": "上海",
+          "limit": 5
+        }
+      ],
+      "result": {
+        "reply": "找到了你保存的一段上海经历：2026年7月14日，你在上海外滩看日出，然后和姐姐吃了早餐。",
+        "changes": [],
+        "lookups": [
+          {
+            "query": "上海",
+            "results": [
+              {
+                "id": "saved-chinese",
+                "text": "我在上海外滩看日出，然后和姐姐吃了早餐。",
+                "textTruncated": false,
+                "categories": [
+                  {
+                    "id": "travel",
+                    "name": "Travel"
+                  }
+                ],
+                "date": "2026-07-14",
+                "created": 3
+              }
+            ],
+            "hasMore": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "literal-percent",
+      "passed": true,
+      "calls": [
+        {
+          "query": "100%",
+          "limit": 5
+        }
+      ],
+      "result": {
+        "reply": "I found one saved experience: you celebrated reaching 100% of your robotics project milestone on 2026-08-10.",
+        "changes": [],
+        "lookups": [
+          {
+            "query": "100%",
+            "results": [
+              {
+                "id": "saved-percent",
+                "text": "I celebrated reaching 100% of my robotics project milestone.",
+                "textTruncated": false,
+                "categories": [
+                  {
+                    "id": "career",
+                    "name": "Career"
+                  }
+                ],
+                "date": "2026-08-10",
+                "created": 4
+              }
+            ],
+            "hasMore": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "recalled-followup-no-duplicate",
+      "passed": true,
+      "calls": [],
+      "result": {
+        "reply": "It suggests you enjoy quiet, meaningful moments with people, like sharing a sunrise walk together.",
+        "changes": []
+      }
+    },
+    {
+      "name": "new-experience-still-drafts",
+      "passed": true,
+      "calls": [],
+      "result": {
+        "reply": "Ready for review.",
+        "changes": [
+          {
+            "cardId": null,
+            "proposal": {
+              "text": "Today I ate lunch at CMU.",
+              "dims": [
+                "health"
+              ],
+              "reason": "Eating lunch is a physical health activity.",
+              "emotion": null,
+              "confidence": 0.9,
+              "date": "2026-09-12"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
