@@ -33,3 +33,5 @@ node .\scripts\run-framework.mjs build
 The IFM evaluation writes sanitized results to `eval/release-report.md` and `eval/release-report.json`; credentials and request headers are never recorded. `scripts/smoke-provider-access.mjs` checks IFM and xAI access and validates that xAI can issue an ephemeral realtime credential without printing it.
 
 See [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) for architecture, product contracts and release criteria.
+
+See [VOICE_REGRESSION.md](./VOICE_REGRESSION.md) for the v1/v6 voice comparison, repair, diagnostics, tests (`npm run test:voice`), and saved Sites rollback versions.
